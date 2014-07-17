@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<manifest xmlns="http://www.imsglobal.org/xsd/imscp_v1p1" xmlns:adlcp="http://www.adlnet.org/xsd/adlcp_v1p3" xmlns:smartnotebook="http://www.smarttech.com/2006-01/notebook" xmlns:smartgallery="http://www.smarttech.com/2006-01/gallery" identifier="id1" version="2006-01" smartnotebook:filesource="SMART Notebook for Windows Version=11.4.564.0">
+
+<metadata>
+	<schema>ADL SCORM</schema>
+	<schemaversion>CAM 1.3</schemaversion>
+	<adlcp:location>metadata.xml</adlcp:location>
+</metadata>
+
+<organizations>
+	<organization id="pagegroups">
+		<item id="group0" identifierref="group0_pages">
+			<title>Gruppe 1</title>
+		</item>
+	</organization>
+</organizations>
+
+<resources>
+	<resource identifier="group0_pages" href="page0.svg" type="webcontent" adlcp:scormType="asset">
+	</resource>
+	
+	<resource identifier="pages" href="page0.svg" type="webcontent" adlcp:scormType="asset">
+    </resource>
+
+	<resource identifier="images"/>
+	<resource identifier="sounds"/>
+	<resource identifier="attachments"/>
+	<resource identifier="flash"/>
+	<resource identifier="videos"/>
+	<resource identifier="annotationmetadata"/>
+	<resource identifier="brush"/>
+</resources>
+
+</manifest>
