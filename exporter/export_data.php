@@ -46,7 +46,7 @@ class export_data {
 		// Create zip file from temporary directory.
 		$tmpfile = tempnam($moodletmpdir, 'smart_');
 		create_zip($tmpdir, $tmpfile);
-		//recurseRmdir($tmpdir);	// Commented out for development.
+		//recurseRmdir($tmpdir);	// DEBUGGING
 
 		return $tmpfile;
 	}

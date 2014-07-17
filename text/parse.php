@@ -20,7 +20,16 @@ class parser_factory {
 }
 
 abstract class parser {
-	abstract public function parse_text($text);
+	
+	/**
+	 * Parses text, which is in the moodle html-format, into a text-object.
+	 */
+	abstract public function parse_to_text($text);
+	
+	/**
+	 * Parses text, which is in the moodle html-format, into plain text (string).
+	 */
+	abstract public function parse_to_string($text);
 }
 
 class svgtext_parser {
@@ -28,7 +37,7 @@ class svgtext_parser {
 	/*
 	 * @param $text SimpleXML-Node of the text-elment.
 	 */
-	public function parse_text($text) {
+	public function parse_to_text($text) {
 		$plain_text = strip_tags($text->asXML());
 		$html = "<p>" . $plain_text . "</p>";
 		return $html;

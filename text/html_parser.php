@@ -41,10 +41,7 @@ public static function get_defalt_formattings() {
 	return $default_formattings;
 }
 
-/**
- * Parses text, which is in the moodle html-format, into a text-object.
- */
-public function parse_text($text) {
+public function parse_to_text($text) {
 	$this->init_parser();
 	
 	// Create surrounding text-elements to get valid xml.
@@ -59,6 +56,10 @@ public function parse_text($text) {
 	xml_parser_free ( $this->xml_parser );
 	
 	return $this->text;
+}
+
+public function parse_to_string($text) {
+	return strip_tags($text);
 }
 
 /*
@@ -101,6 +102,7 @@ private function startElement($parser, $name, $attrs) {
 			break;
 		default :
 			// TODO log error: Unsupported Formatting.
+			$this->logger->log_error("Unsupported formatting $name");
 			break;
 	}
 }

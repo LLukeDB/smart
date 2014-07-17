@@ -3,12 +3,11 @@
 require_once ($CFG->dirroot . '/question/format/smart/idgenerator.php');
 
 class question {
+	
 	// Page infos.
 	public $page_id;
 	public $page_num;
 	public $page_name;
-	
-	public $answer_block_id;	// needed for rdf
 	
 	// Question infos.		
 	public $format;					// page: votemetadata -> format
@@ -17,14 +16,22 @@ class question {
 	public $points = "";			// page: votemetadata -> points
 	public $explanation = "";		// page: votemetadata -> explanation
 
-	public $questionformat;			// questionformat for rdf, eg. choice
-	public $choicelabelstyle;		// choicelabelstyle for rdf, eg. true-false
+	public $questionformat;			// rdf: questionformat, eg. choice
+	public $choicelabelstyle;		// rdf: choicelabelstyle, eg. true-false
+	public $answer_block_id;		// rdf:
 	
 	public $question_num;
 	public $questiontext;
 	public $question_id;
 	
 	public $choices;
+	
+	// Attributes for numerical questions.
+	public $maximumvalue;
+	public $minimumvalue;
+	
+	// Attributes for short-answer questions.
+	public $exactmatches;
 	
 	public function __construct($page_num) {
 		$this->choices = array();

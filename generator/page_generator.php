@@ -30,12 +30,42 @@ class page_generator extends file_generator {
 
 	protected function generate_xml() {
 		$this->init();
+		switch ($this->question->format) {  // TODO
+			case 'noquestion':
+				$this->generate_noquestion_page();
+				break;
+			case 'trueorfalse':
+				$this->generate_choicequestion_page();
+				break;
+			case 'selection':
+				$this->generate_choicequestion_page();
+				break;
+			case 'choice':
+				$this->generate_choicequestion_page();
+				break;
+			case 'numeric':
+				$this->generate_choicequestion_page();
+				break;
+			case 'short-answer':
+				$this->generate_choicequestion_page();
+				break;
+		}
+		
+		$this->finish();
+	}
+	
+	private function generate_noquestion_page() {
+		$g = $this->xml->g;
+		$text = $this->question->questiontext;
+		$this->generate_text($g, $text, 30, 740);
+	}
+	
+	private function generate_choicequestion_page() {
 		$this->generate_question();
 		foreach($this->question->choices as $choice) {
 			$this->ypos += 10; // Add margin.
 			$this->generate_choice($choice);
 		}
-		$this->finish();
 	}
 
 	private function init() {
@@ -83,11 +113,11 @@ class page_generator extends file_generator {
 		$questiontext->addAttribute("likert", "");
 		
 		// Write 1st text-element.
-		$text = $this->html_parser->parse_text($this->question->question_num);
-		$label_geometry = $this->generate_text($g, $text, 30, 0, false);
+		$text = $this->html_parser->parse_to_text($this->question->question_num);
+		$label_geometry = $this->generate_text($g, $text, 30, 0, false, false);
 		
 		// Write 2nd text-element.
-		$this->generate_text($g, $this->question->questiontext, 60);
+		$this->generate_text($g, $this->question->questiontext, 60, true, false);
 		
 		// Set remaining attributes.
 		//$g->addAttribute("labelwidth", ceil($label_geometry['width']));
@@ -177,7 +207,7 @@ class page_generator extends file_generator {
 		$e->addAttribute("visible", "1");
 	}
 	
-	private function generate_text($parent, $text, $xpos, $width=0, $new_line=true) {
+	private function generate_text($parent, $text, $xpos, $width=0, $new_line=true, $line_spacing = true) {
 		$geometry = new stdClass();
 		$geometry->rel_ypos = 0;
 		
@@ -187,7 +217,7 @@ class page_generator extends file_generator {
 		// Generate all paragraphs.
 		$paragraphs = $text->get_paragraphs();
 		foreach ($paragraphs as $paragraph) {
-			$this->generate_paragraph($text_elem, $paragraph, $geometry);
+			$this->generate_paragraph($text_elem, $paragraph, $geometry, $line_spacing);
 		}
 		
 		// Set Attributes of text element.
@@ -216,7 +246,7 @@ class page_generator extends file_generator {
 		return $geometry;
 	}
 	
-	private function generate_paragraph($parent, $paragraph, $geometry) {
+	private function generate_paragraph($parent, $paragraph, $geometry, $line_spacing = true) {
 		// Create tspan-element for paragraph.
 		$p_tspan = $parent->addChild("tspan");
 		$p_tspan->addAttribute("justification", "left");
@@ -225,14 +255,14 @@ class page_generator extends file_generator {
 		// Generate all lines.
 		$lines = $paragraph->get_lines();
 		foreach($lines as $line) {
-			$this->generate_line($p_tspan, $line, $geometry);
+			$this->generate_line($p_tspan, $line, $geometry, $line_spacing);
 		}
 		
 		return $geometry;
 	}
 	
-	private function generate_line($parent, $line, $geometry) {
-		$line_spacing = 1.0;
+	private function generate_line($parent, $line, $geometry, $line_spacing = true) {
+		$line_space = 1.0;
 		
 		// Create tspan-element for line.
 		$line_tspan = $parent->addChild("tspan");
@@ -256,7 +286,12 @@ class page_generator extends file_generator {
 		
 		// Calculate height of line and set attributes.
 		$line_height = $this->getTSpanGeometry($line_tspan)['height'];
-		$geometry->rel_ypos += ($line_spacing + 1) * $line_height;
+		if($line_spacing == true) {
+			$geometry->rel_ypos += ($line_space + 1) * $line_height;
+		}
+		else {
+			$geometry->rel_ypos += $line_height;
+		}
 		foreach($generated_tspans as $tf_tspan) {
 			$tf_tspan->addAttribute("y", "$geometry->rel_ypos");
 		}
@@ -277,7 +312,7 @@ class page_generator extends file_generator {
 		$text_elem = $svg->addChild("text", "");
 		$text_elem->addAttribute("transform", "translate(0, 500)");
 		simplexml_append_child($tspan, $text_elem);
-		$svg->saveXML("/opt/lampp/apps/moodle/moodledata/temp/asdf.svg"); // DEBUGGING
+		//$svg->saveXML("/opt/lampp/apps/moodle/moodledata/temp/asdf.svg"); // DEBUGGING
 	
 		$im = new Imagick();
 		$im->readimageblob($svg->asXML());
@@ -306,6 +341,14 @@ class page_generator extends file_generator {
 		$im->clear();
 		$im->destroy();
 		return $geometry;
+	}
+	
+	private function generate_numeric_answer_element() {
+		// TODO
+	}
+	
+	private function generate_shortanswer_answer_element() {
+		// TODO
 	}
 
 }

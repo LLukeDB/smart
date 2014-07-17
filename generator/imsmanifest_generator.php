@@ -19,8 +19,6 @@ class imsmanifest_generator extends file_generator {
 	}
 
 	protected function generate_xml() {
-		error_logger::get_instance()->log_error("simsmanifest_generator->generate_xml() called");
-
 		// Nothing to generate.
 	}
 

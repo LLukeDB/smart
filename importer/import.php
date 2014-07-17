@@ -107,7 +107,7 @@ abstract class qformat_importer {
 		$text_element = $page->xpath("//g[@class='question']/text[2]")[0];
 		$parser_factory = new parser_factory();
 		$parser = $parser_factory->get_parser('svgtext');
-		$text = $parser->parse_text($text_element);
+		$text = $parser->parse_to_text($text_element);
 		return $text;
 	}
 	

@@ -38,6 +38,10 @@ class text {
 		$text->add_paragraph();
 		return $text;
 	}
+	
+	public function append_text($text) {
+		$this->paragraphs = array_merge($this->paragraphs, $text->get_paragraphs());
+	}
 }
 
 class paragraph {
