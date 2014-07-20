@@ -1,6 +1,7 @@
 <?php
 
 require_once ($CFG->dirroot . '/question/format/smart/idgenerator.php');
+require_once ($CFG->dirroot . '/question/format/smart/text/text.php');
 
 class question {
 	
@@ -66,11 +67,14 @@ class choice {
 	public $format = "";	// page: votemetadata -> format
 	
 	public $choicetext;
+	public $choicelabel;
 	public $true;
 	
 	public function __construct() {
 		$this->choice_id = id_generator::get_instance()->generate_id();
 		$this->choice_value = id_generator::get_instance()->generate_id();
+		$this->choicelabel = text::get_empty_text();
+		$this->choicetext = text::get_empty_text();
 	}
 	
 }

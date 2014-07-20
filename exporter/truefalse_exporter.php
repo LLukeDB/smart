@@ -7,7 +7,6 @@ require_once ($CFG->dirroot . '/question/format/smart/generator/question.php');
 require_once ($CFG->dirroot . '/question/format/smart/idgenerator.php');
 require_once ($CFG->dirroot . '/question/format/smart/exporter/export_data.php');
 require_once ($CFG->dirroot . '/question/format/smart/exporter/export.php');
-require_once ($CFG->dirroot . '/question/format/smart/svgtools.php');
 require_once ($CFG->dirroot . '/question/format/smart/text/text.php');
 require_once ($CFG->dirroot . '/question/format/smart/text/html_parser.php');
 
@@ -43,8 +42,8 @@ class truefalse_exporter extends qformat_exporter {
 		$choice_true->choice_id = id_generator::get_instance()->generate_id();
 		$choice_true->label = "1";
 		$text = get_string('true', 'qtype_truefalse');
-		$choicetext = $html_parser->parse_to_text($text);
-		$choice_true->choicetext = $choicetext;
+		$choicelabel = $html_parser->parse_to_text($text);
+		$choice_true->choicelabel = $choicelabel;
 		$choice_true->true = $this->mquestion->options->trueanswer == '292' ? true : false;
 		$question->add_choice($choice_true);
 
@@ -53,8 +52,8 @@ class truefalse_exporter extends qformat_exporter {
 		$choice_false->choice_id = id_generator::get_instance()->generate_id();
 		$choice_false->label = "2";
 		$text = get_string('false', 'qtype_truefalse');
-		$choicetext = $html_parser->parse_to_text($text);
-		$choice_false->choicetext = $choicetext;
+		$choicelabel = $html_parser->parse_to_text($text);
+		$choice_false->choicelabel = $choicelabel;
 		$choice_false->true = $this->mquestion->options->trueanswer == '292' ? false : true;
 		$question->add_choice($choice_false);
 
@@ -119,8 +118,9 @@ class multichoice_exporter extends qformat_exporter {
 			$choice->label = $position;
 			$choice->format = "selection";
 			$parser = parser_factory::get_parser($answer->answerformat);
-			$choicetext = $parser->parse_to_text($answer->answer);
+			$choicetext = $parser->parse_to_text($answer->answer, $this->mquestion);
 			$choice->choicetext = $choicetext;
+			$choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
 			if($answer->fraction > 0.0) {
 				$choice->true = true;
 				$correct .= " " . $position;
@@ -160,8 +160,9 @@ class multichoice_exporter extends qformat_exporter {
 			$choice->label = $position;
 			$choice->format = "choice";
 			$parser = parser_factory::get_parser($answer->answerformat);
-			$choicetext = $parser->parse_to_text($answer->answer);
+			$choicetext = $parser->parse_to_text($answer->answer, $this->mquestion);
 			$choice->choicetext = $choicetext;
+			$choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
 			if($answer->fraction > 0.0) {
 				$choice->true = true;
 				$correct .= " " . $position;
@@ -214,7 +215,7 @@ class matching_exporter extends qformat_exporter {
 		
 		// Add subquestiontext to questiontext.
 		$parser = parser_factory::get_parser($subquestion->questiontextformat);
-		$subquestiontext = $parser->parse_to_text($subquestion->questiontext);
+		$subquestiontext = $parser->parse_to_text($subquestion->questiontext, $this->mquestion);
 		$question->questiontext->append_text($subquestiontext);
 		
 		// Set questionanswers.
@@ -227,7 +228,8 @@ class matching_exporter extends qformat_exporter {
 			$choice->label = $position;
 			$choice->format = "choice";
 			$parser = new html_parser();
-			$choice->choicetext = $parser->parse_to_text($subq->answertext);
+			$choice->choicetext = $parser->parse_to_text($subq->answertext, $this->mquestion);
+			$choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
 			if($subq->id == $subquestion->id) {
 				$choice->true = true;
 				$correct .= " " . $position;

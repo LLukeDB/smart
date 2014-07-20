@@ -391,10 +391,13 @@ class qformat_smart extends qformat_default {
 		}
 		
 		// Export logged errors.
-		$dummy_question=new stdClass();
-		$dummy_question->qtype='log';
-		$exporter = $exporter_factory->get_exporter($dummy_question);
-		$exporter->export($export_data);
+		$log = error_logger::get_instance()->get_error_log();
+		if(count($log) > 0) {
+			$dummy_question=new stdClass();
+			$dummy_question->qtype='log';
+			$exporter = $exporter_factory->get_exporter($dummy_question);
+			$exporter->export($export_data);
+		}
 		
 		// Create zip-file from export_data.
 		$zip_file = $export_data->toZIP();

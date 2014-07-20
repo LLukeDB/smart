@@ -54,7 +54,7 @@ abstract class qformat_exporter {
 	
 		// Set questiontext.
 		$parser = parser_factory::get_parser($this->mquestion->questiontextformat);
-		$questiontext = $parser->parse_to_text($this->mquestion->questiontext);
+		$questiontext = $parser->parse_to_text($this->mquestion->questiontext, $this->mquestion);
 		$question->questiontext = $questiontext;
 		
 		// Set explanation.
@@ -89,7 +89,7 @@ class log_exporter extends qformat_exporter {
 		// Create text from log entries.
 		$html_text = "";
 		foreach ($log as $logentry) {
-			$html_text .= "<p>" . $logentry . "</p>";
+			$html_text .= '<p><span style="font-size: small;">' . $logentry . '</span></p>';
 		}
 		$html_parser = new html_parser();
 		$text = $html_parser->parse_to_text($html_text);

@@ -8,8 +8,8 @@ class html_parser extends parser {
 
 private $formattings;
 private $xml_parser;
-private $logger;
 private $text;
+private $question;
 
 private function init_parser() {
 	$this->formattings = array();
@@ -28,9 +28,6 @@ private function init_parser() {
 	
 	// Create text-object.
 	$this->text = new text();
-	
-	// Get logger.
-	$this->logger = error_logger::get_instance();
 }
 
 public static function get_defalt_formattings() {
@@ -41,8 +38,13 @@ public static function get_defalt_formattings() {
 	return $default_formattings;
 }
 
-public function parse_to_text($text) {
+/*
+ * @param $text text in html-format, which should be parsed
+ * 		  $question moodle question-object - needed for error logging
+ */
+public function parse_to_text($text, $question=null) {
 	$this->init_parser();
+	$this->question = $question;
 	
 	// Create surrounding text-elements to get valid xml.
 	$text = "<text>" . $text . "</text";
@@ -101,8 +103,7 @@ private function startElement($parser, $name, $attrs) {
 			$this->text->add_paragraph();
 			break;
 		default :
-			// TODO log error: Unsupported Formatting.
-			$this->logger->log_error("Unsupported formatting $name");
+			$this->log_error($name);
 			break;
 	}
 }
@@ -143,7 +144,7 @@ private function parse_attributes($attrs) {
 		}
 		else {
 			array_push($this->formattings, array());
-			// TODO Error logging: unknown attribute.
+			$this->log_error($key);
 		}
 	}
 }
@@ -154,7 +155,7 @@ private function parse_style_attribue($attrval) {
 	foreach ($styles as $num => $style) {
 		$splitted_style = preg_split("/:\s*/", $style);
 		if(count($splitted_style) != 2) {
-			// TODO Error handling.
+			$this->log_error($attrval);
 		}
 		else {
 			$splitted_styles[$splitted_style[0]] = $splitted_style[1];
@@ -219,20 +220,20 @@ private function translate_style($stylename, $stylevalue) {
 					$returnvalue = array("text-strikeout" => "strikeout");
 					break;
 				default:
-					// TODO log error: Unsupported formatting.
+					$this->log_error($stylename . '="' . $stylevalue . '"');
 					break;
 			}
 			break;
 		case "text-align":
 			if($stylevalue != "left") {
-				// TODO log error: Unsupported formatting.
+				$this->log_error($stylename . '="' . $stylevalue . '"');
 			}
 			break;
 		case "color":
 			$returnvalue = array("fill" => $stylevalue);
 			break;
 		default:
-			// TODO log error: Unsupported formatting.
+			$this->log_error($stylename . '="' . $stylevalue . '"');
 			break;
 	}
 	
@@ -258,6 +259,20 @@ private function get_formattings() {
 	}
 	
 	return $merged_formattings;
+}
+
+private function log_error($formatting) {
+	// Create log entry only if we know in which question the error is.
+	if($this->question != null) {
+		// Create object for string params.
+		$a = new stdClass();
+		$a->formatting = $formatting;
+		$a->questiontitle = $this->question->name;
+		
+		$error_msg = '<p><span font-size="small">- ' . get_string('formatting_error', 'qformat_smart', $a) . '</span></p>';
+		
+		error_logger::get_instance()->log_error($error_msg);
+	}
 }
 
 // function parseDEFAULT($parser, $data) {

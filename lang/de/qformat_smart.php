@@ -3,6 +3,8 @@ $string['unsupportedquestiontype'] = 'Die Auswahl enthält Fragetypen, die nicht
 $string['missingextension'] = 'Folgende für die korrekte Funktion notewendige PHP-Erweiterung ist nicht installiert: {$a}';
 $string['filenotreadable'] = 'Die Datei konnte nicht gelesen werden!';
 $string['filenotvalid'] = 'Die Datei ist keine valide .notebook-Datei!';
+$string['shortanswer_input'] = 'Schüler geben hier ihre Antworten ein';
+$string['formatting_error'] = 'Formatierung "{$a->formatting}" in Frage "{$a->questiontitle}" wurde weggelassen.';
 
 $string['invalidxml'] = 'Invalid XML file - string expected (use CDATA?) dedede';
 $string['pluginname'] = 'SMART Notebook Format';
@@ -13,4 +15,6 @@ $string['unsupportedexport'] = 'Question type {$a} is not supported by XML expor
 $string['xmlimportnoname'] = 'Missing question name in XML file';
 $string['xmlimportnoquestion'] = 'Missing question text in XML file';
 $string['xmltypeunsupported'] = 'Question type {$a} is not supported by XML import';
+
+
 ?>

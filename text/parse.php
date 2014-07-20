@@ -24,7 +24,7 @@ abstract class parser {
 	/**
 	 * Parses text, which is in the moodle html-format, into a text-object.
 	 */
-	abstract public function parse_to_text($text);
+	abstract public function parse_to_text($text, $question);
 	
 	/**
 	 * Parses text, which is in the moodle html-format, into plain text (string).
