@@ -25,16 +25,12 @@
  */
 require_once ("$CFG->libdir/xmlize.php");
 require_once ($CFG->dirroot . '/lib/uploadlib.php');
-require_once ($CFG->dirroot . '/question/format/smart/filetools.php');
+require_once ($CFG->dirroot . '/question/format/smart/helper/filetools.php');
 require_once ($CFG->dirroot . '/question/format/smart/exporter/export.php');
 require_once ("$CFG->dirroot/question/format.php");
-require_once ($CFG->dirroot . '/question/format/smart/logging.php');
-require_once ($CFG->dirroot . '/question/format/smart/generator/metadataxml_generator.php');
-require_once ($CFG->dirroot . '/question/format/smart/generator/settingsxml_generator.php');
-require_once ($CFG->dirroot . '/question/format/smart/generator/imsmanifest_generator.php');
-require_once ($CFG->dirroot . '/question/format/smart/generator/metadatardf_generator.php');
+require_once ($CFG->dirroot . '/question/format/smart/helper/logging.php');
+require_once ($CFG->dirroot . '/question/format/smart/generator/generator.php');
 require_once ($CFG->dirroot . '/question/format/smart/generator/page_generator.php');
-require_once ($CFG->dirroot . '/question/format/smart/importer/import_data.php');
 require_once ($CFG->dirroot . '/question/format/smart/importer/import.php');
 
 class qformat_smart extends qformat_default {

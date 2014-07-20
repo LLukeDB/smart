@@ -1,12 +1,10 @@
 <?php
 
-require_once ($CFG->dirroot . '/question/format/smart/simplexml_helper.php');
+require_once ($CFG->dirroot . '/question/format/smart/helper/simplexml_helper.php');
 
 class text {
 	
 	private $paragraphs = array();
-	private $x;  // Absolute x-coordinate of the top left corner of the text-element.
-	private $y;  // Absolute y-coordinate of the top left corner of the text-element.
 	
 	public function add_paragraph() {
 		$p = new paragraph();
@@ -334,7 +332,7 @@ class textfragment {
 		return $this->metrics;
 	}
 	
-	private function calculate_metrics() {  // TODO exception handling
+	private function calculate_metrics() {
 		$im = new Imagick ();
 		$im->setResolution(800, 600);
 		$draw = new ImagickDraw ();
@@ -343,7 +341,7 @@ class textfragment {
 		//$draw->setfontfamily($this->formattings['font-family']);
 		$draw->setFontSize ($this->formattings['font-size']);
 		$draw->setTextAlignment (Imagick::ALIGN_LEFT);
-		//$draw->setfontstyle($this->formattings['font-style']);
+		//$draw->setfontstyle($this->formattings['font-style']);  // TODO
 		//$draw->setfontweight($this->formattings['font-weight']);
 		$imagic_metrics = $im->queryFontMetrics ($draw, $this->text);
 		

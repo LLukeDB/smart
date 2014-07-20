@@ -5,14 +5,10 @@ $string['filenotreadable'] = 'The file could not be read!';
 $string['filenotvalid'] = 'The file is not a valid .notebook-file!';
 $string['shortanswer_input'] = 'Pupils insert their answers here';
 $string['formatting_error'] = 'Formatting "{$a->formatting}" in question "{$a->questiontitle}" has been omitted.';
+$string['packingfailed'] = 'File archive could not be created!';
+$string['savingfailed'] = 'The file "{$a}" could not be saved!';
+$string['loadingfailed'] = 'The file "{$a}" could not be opened!';
+$string['parsingfailed'] = 'The text "{$a->text}" of question "{$a->questionname}" could not be parsed!';
+$string['noparserfound'] = 'A parser for the textformat "{$a}" could not be found!';
 
-$string['invalidxml'] = 'Invalid XML file - string expected (use CDATA?) en';
-$string['pluginname'] = 'SMART Notebook Format';
-$string['pluginname_help'] = 'Plugin for exporting questions in the SMART notebook format.';
-$string['pluginname_link'] = 'qformat/smart';
-$string['truefalseimporterror'] = '<b>Warning</b>: The true/false question \'{$a->questiontext}\' could not be imported properly. It was not clear whether the correct answer is true or false. The question has been imported assuming that the answer is \'{$a->answer}\'. If this is not correct, you will need to edit the question.';
-$string['unsupportedexport'] = 'Question type {$a} is not supported by XML export';
-$string['xmlimportnoname'] = 'Missing question name in XML file';
-$string['xmlimportnoquestion'] = 'Missing question text in XML file';
-$string['xmltypeunsupported'] = 'Question type {$a} is not supported by XML import';
 ?>

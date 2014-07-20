@@ -12,10 +12,10 @@ function create_zip($dir, $file) {
 		addFolderToZip ($dir, $zipArchive);
 		$res = $zipArchive->close ();
 		if ($res === false) {
-			// TODO Error handling.
+			print_error('packingfailed', 'qformat_smart');
 		}
 	} else {
-		// TODO Error handling.
+		print_error('packingfailed', 'qformat_smart');
 	}
 }
 
@@ -97,6 +97,13 @@ function addFolderToZip($dir, $zipArchive, $zipdir = '') {
   	return rmdir($dir);
   }
   
+  /**
+   * Saves a SimpleXML document to a file.
+   * 
+   * @param SimpleXML-Element $simplexml
+   * @param filename $file
+   * @return boolean
+   */
   function save_simplexml($simplexml, $file) {
   	$dom = new DOMDocument("1.0");
   	$dom->preserveWhiteSpace = false;
@@ -106,7 +113,7 @@ function addFolderToZip($dir, $zipArchive, $zipdir = '') {
   	
   	//$result = $simplexml->asXML($file);
   	if(!$result) {
-  		// TODO: error handling
+  		print_error('savingfailed', 'qformat_smart', null, $file);
   		return false;
   	}
   	return true;
@@ -118,7 +125,7 @@ function addFolderToZip($dir, $zipArchive, $zipdir = '') {
 		return $xml_doc;
   	}
   	else {
-  		// TODO: error handling
+  		print_error('loadingfailed', 'qformat_smart', null, $file);
   	}
   	
   }
@@ -127,7 +134,7 @@ function addFolderToZip($dir, $zipArchive, $zipdir = '') {
   	$domdocument->formatOutput = true;
   	$result = $domdocument->save($filename);
   	if(!$result) {
-  		// TODO: error handling
+  		print_error('savingfailed', 'qformat_smart', null, $file);
   	}
   }
   
@@ -135,7 +142,7 @@ function addFolderToZip($dir, $zipArchive, $zipdir = '') {
   	$xml_doc = new DOMDocument();
   	$result = $xml_doc->load($filename);
   	if(!$result) {
-  		// TODO: error handling
+  		print_error('loadingfailed', 'qformat_smart', null, $file);
   	}
   	return $xml_doc;
   }

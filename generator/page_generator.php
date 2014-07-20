@@ -1,9 +1,9 @@
 <?php
 
 require_once ($CFG->dirroot . '/question/format/smart/format.php');
-require_once ($CFG->dirroot . '/question/format/smart/filetools.php');
+require_once ($CFG->dirroot . '/question/format/smart/helper/filetools.php');
 require_once ($CFG->dirroot . '/question/format/smart/generator/generator.php');
-require_once ($CFG->dirroot . '/question/format/smart/simplexml_helper.php');
+require_once ($CFG->dirroot . '/question/format/smart/helper/simplexml_helper.php');
 require_once ($CFG->dirroot . '/question/format/smart/text/text.php');
 require_once ($CFG->dirroot . '/question/format/smart/text/html_parser.php');
 

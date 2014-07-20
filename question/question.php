@@ -1,6 +1,6 @@
 <?php
 
-require_once ($CFG->dirroot . '/question/format/smart/idgenerator.php');
+require_once ($CFG->dirroot . '/question/format/smart/helper/idgenerator.php');
 require_once ($CFG->dirroot . '/question/format/smart/text/text.php');
 
 class question {

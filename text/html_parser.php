@@ -2,7 +2,7 @@
 
 require_once ($CFG->dirroot . '/question/format/smart/text/text.php');
 require_once ($CFG->dirroot . '/question/format/smart/text/parse.php');
-require_once ($CFG->dirroot . '/question/format/smart/logging.php');
+require_once ($CFG->dirroot . '/question/format/smart/helper/logging.php');
 
 class html_parser extends parser {
 
@@ -53,7 +53,10 @@ public function parse_to_text($text, $question=null) {
 	str_replace("\n", "", $text);
 	
 	if (! xml_parse ( $this->xml_parser, $text )) {
-		print_error('could not parse text'); // TODO error handling.
+		$a = new stdClass();
+		$a->questionname = $this->question->name;
+		$a->text = $text;
+		print_error('parsingfailed', 'qformat_smart', null, $a);
 	}
 	xml_parser_free ( $this->xml_parser );
 	
