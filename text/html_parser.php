@@ -181,7 +181,7 @@ private function translate_style($stylename, $stylevalue) {
 	
 	switch($stylename) {
 		case "font-family": 
-			$fonts = preg_split("/,\s*/", $stylevalue); 
+			$fonts = preg_split("/,\s*/", $stylevalue);
 			$returnvalue = array("font-family" => $fonts[0]); // Take only the first specified font.
 			break;
 		case "font-size":

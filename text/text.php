@@ -337,12 +337,23 @@ class textfragment {
 		$im->setResolution(800, 600);
 		$draw = new ImagickDraw ();
 		$draw->setStrokeColor ("none");
-		$draw->setFont ($this->formattings['font-family']);
+		$font = str_replace(' ', '-', $this->formattings['font-family']);
+		$draw->setFont($font);
 		//$draw->setfontfamily($this->formattings['font-family']);
 		$draw->setFontSize ($this->formattings['font-size']);
 		$draw->setTextAlignment (Imagick::ALIGN_LEFT);
-		//$draw->setfontstyle($this->formattings['font-style']);  // TODO
-		//$draw->setfontweight($this->formattings['font-weight']);
+		if(array_key_exists('font-style', $this->formattings)) {
+			$draw->setfontstyle(imagick::STYLE_ITALIC );
+		}
+		if(array_key_exists('font-weight', $this->formattings)) {
+			$draw->setfontweight(600);
+		}
+		if(array_key_exists('text-decoration', $this->formattings)) {
+			$draw->settextdecoration(imagick::DECORATION_UNDERLINE);
+		}
+		if(array_key_exists('text-strikeout', $this->formattings)) {
+			$draw->settextdecoration(imagick::DECORATION_LINETROUGH);
+		}
 		$imagic_metrics = $im->queryFontMetrics ($draw, $this->text);
 		
 		$metrics = new metrics();

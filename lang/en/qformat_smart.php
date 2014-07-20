@@ -10,5 +10,6 @@ $string['savingfailed'] = 'The file "{$a}" could not be saved!';
 $string['loadingfailed'] = 'The file "{$a}" could not be opened!';
 $string['parsingfailed'] = 'The text "{$a->text}" of question "{$a->questionname}" could not be parsed!';
 $string['noparserfound'] = 'A parser for the textformat "{$a}" could not be found!';
+$string['pluginname'] = 'SMART Notebook Format';
 
 ?>

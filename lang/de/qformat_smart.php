@@ -9,8 +9,7 @@ $string['packingfailed'] = 'Dateiarchiv konnte nicht erstellt werden!';
 $string['savingfailed'] = 'Die Datei "{$a}" konnte nicht gespeichert werden!';
 $string['loadingfailed'] = 'Die Datei "{$a}" konnte nicht geladen werden!';
 $string['parsingfailed'] = 'Der Text "{$a->text}" in der Frage "{$a->questionname}" konnte nicht geparst werden!';
-
-
-
+$string['noparserfound'] = 'Es konnt kein Parser für das Textformat "{$a}" gefunden werden!';
+$string['pluginname'] = 'SMART Notebook Format';
 
 ?>
