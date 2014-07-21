@@ -4,7 +4,11 @@ require_once ($CFG->dirroot . '/question/format/smart/helper/simplexml_helper.ph
 
 class text {
 	
-	private $paragraphs = array();
+	private $paragraphs;
+	
+	public function __construct() {
+		$this->paragraphs = array();
+	}
 	
 	public function add_paragraph() {
 		$p = new paragraph();
@@ -21,6 +25,7 @@ class text {
 	}
 	
 	public function get_paragraphs() {
+		$this->remove_empty_paragraphs();
 		return $this->paragraphs;
 	}
 
@@ -44,11 +49,31 @@ class text {
 	}
 	
 	/*
-	 * Removes empty paragraphs at the start and at the end of the text.
+	 * Removes empty paragraphs at the beginning and at the end of the text.
 	 */
 	private function remove_empty_paragraphs() {
-		// TODO
+		$this->remove_empty_paragraphs_at_the_beginning();
+		$this->remove_empty_paragraphs_at_the_end();
 	}
+	
+	private function remove_empty_paragraphs_at_the_beginning() {
+		$paragraphs = $this->paragraphs;
+		if(count($paragraphs) > 1) {
+			if($paragraphs[0]->is_empty()) {
+				$this->paragraphs = array_slice($paragraphs, 1);
+			}
+		}
+	}
+	
+	private function remove_empty_paragraphs_at_the_end() {
+		$paragraphs = $this->paragraphs;
+		if(count($paragraphs) > 1) {
+			if($paragraphs[count($paragraphs) - 1]->is_empty()) {
+				$this->paragraphs = array_slice($paragraphs, 0, count($paragraphs) - 1);
+			}
+		}
+	}
+	
 }
 
 class paragraph {
@@ -245,10 +270,11 @@ class paragraph {
 class line {
 	
 	private $textfragments = array();
-	private $metrics = null;
-	
+	private $metrics =  null;
+
 	public function __construct($textfragments) {
 		$this->textfragments = $textfragments;
+		$this->metrics = null;
 	}
 	
 	public function get_textfragments() {
