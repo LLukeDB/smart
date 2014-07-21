@@ -419,7 +419,8 @@ class textfragment {
 		$metrics = new metrics();
 		$metrics->baseline = $baseline = $imagic_metrics['boundingBox']['y2'];
 		$metrics->width = $imagic_metrics['textWidth'] + 2 * $imagic_metrics['boundingBox']['x1'];
-		$metrics->height = $imagic_metrics['textHeight'] + $imagic_metrics['descender'];
+		//$metrics->height = $imagic_metrics['textHeight'] + $imagic_metrics['descender'];
+		$metrics->height = $imagic_metrics['textHeight'];
 		
 		$this->metrics = $metrics;
 	}
