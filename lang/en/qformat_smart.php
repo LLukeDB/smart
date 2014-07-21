@@ -11,5 +11,7 @@ $string['loadingfailed'] = 'The file "{$a}" could not be opened!';
 $string['parsingfailed'] = 'The text "{$a->text}" of question "{$a->questionname}" could not be parsed!';
 $string['noparserfound'] = 'A parser for the textformat "{$a}" could not be found!';
 $string['pluginname'] = 'SMART Notebook Format';
+$string['pluginname_help'] = 'Plugin for exporting questions in the SMART notebook format.';
+$string['pluginname_link'] = 'qformat/smart';
 
 ?>

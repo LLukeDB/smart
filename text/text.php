@@ -42,6 +42,13 @@ class text {
 	public function append_text($text) {
 		$this->paragraphs = array_merge($this->paragraphs, $text->get_paragraphs());
 	}
+	
+	/*
+	 * Removes empty paragraphs at the start and at the end of the text.
+	 */
+	private function remove_empty_paragraphs() {
+		// TODO
+	}
 }
 
 class paragraph {
@@ -79,7 +86,7 @@ class paragraph {
 	 * Breaks paragraph into several lines with the given width.
 	 */
 	private function calculate_lines($line_width) {
-		$splits = $this->split_textfragments();
+		$splits = $this->split_textfragments($line_width);
 		$lines = array();
 		$line_fragments = array();
 		$current_width = 0;
@@ -89,7 +96,8 @@ class paragraph {
 				array_push($line_fragments, $split);
 			}
 			else {
-				$line = new line($line_fragments);
+				$merged_line_fragments = $this->merge_textfragments($line_fragments);
+				$line = new line($merged_line_fragments);
 				array_push($lines, $line);
 				$line_fragments = array();
 				array_push($line_fragments, $split);
@@ -97,7 +105,8 @@ class paragraph {
 			}
 		}
 		if(count($line_fragments) > 0) {
-			$line = new line($line_fragments);
+			$merged_line_fragments = $this->merge_textfragments($line_fragments);
+			$line = new line($merged_line_fragments);
 			array_push($lines, $line);
 		}
 		$this->lines = $lines;
@@ -106,18 +115,81 @@ class paragraph {
 	/*
 	 * Splits each textfragment into several textfragments each containing only a single word.
 	 */
-	private function split_textfragments() {
+	private function split_textfragments($line_width) {
 		if(count($this->textfragments) == 0) {
 			return;
 		}
 		$textfragments = $this->merge_textfragments($this->textfragments);
 		$new_textfragments = array();
 		foreach($textfragments as $textfragment) {
-			$splits = preg_split("/ /", $textfragment->get_text());  // TODO improve regex
+			//$splits = preg_split("/ /", $textfragment->get_text());
+			$splits = $this->split_string($textfragment->get_text());
 			foreach ($splits as $split) {
 				$new_textfragment = new textfragment($split . " ", $textfragment->get_formattings());
 				array_push($new_textfragments, $new_textfragment);
 			}
+		}
+		
+		$new_textfragments = $this->split_too_long_textfragments($new_textfragments, $line_width);
+		return $new_textfragments;
+	}
+	
+	private function split_string($text) {
+		$splits = array();
+		
+		$last = 0;
+		for($i = 0; $i < strlen($text); $i++) {
+			if($text[$i] == ' ') {
+				$split = substr($text, $last, $i - $last);
+				array_push($splits, $split);
+				$last = $i+1;
+			}
+		}
+		if($last < strlen($text)) {
+			$split = substr($text, $last);
+			array_push($splits, $split);
+		}
+		
+		return $splits;
+	}
+	
+	private function split_too_long_textfragments($textfragments, $line_width) {
+		$new_textfragments = array();
+		
+		foreach ($textfragments as $textfragment) {
+			if($textfragment->get_metrics()->width > $line_width) {
+				$splits = $this->split_too_long_textfragment($textfragment, $line_width);
+				$new_textfragments = array_merge($new_textfragments, $splits);  // ???
+			}
+			else {
+				array_push($new_textfragments, $textfragment);
+			}
+		}
+		
+		return $new_textfragments;
+	}
+	
+	private function split_too_long_textfragment($textfragment, $line_width) {
+		$new_textfragments = array();
+		$text = $textfragment->get_text();
+		
+		$subtext = "";
+		$subtf;
+		for($i = 0; $i < strlen($text); $i++) {
+			$next_subtext = $subtext . $text[$i];
+			$tf = new textfragment($next_subtext, $textfragment->get_formattings());
+			if($tf->get_metrics()->width > $line_width) {
+				array_push($new_textfragments, $subtf);
+				$subtext = "" . $text[$i];
+				$subtf = new textfragment($subtext, $textfragment->get_formattings());
+			}
+			else {
+				$subtext = $next_subtext;
+				$subtf = $tf;
+			}
+		}
+		if(strlen($subtext) > 0) {
+			array_push($new_textfragments, $subtf);
 		}
 		
 		return $new_textfragments;
@@ -155,6 +227,18 @@ class paragraph {
 		array_push($new_textfragments, $last_textfragment);
 	
 		return $new_textfragments;
+	}
+	
+	public function is_empty() {
+		$return = true;
+		foreach ($this->textfragments as $textfragment) {
+			$text = trim($textfragment->get_text());
+			if($text != "") {
+				$return = false;
+			}
+		}
+			
+		return $return;
 	}
 }
 
@@ -228,39 +312,39 @@ class line {
 		$this->metrics = $metrics;
 	}
 	
-	/*
-	 * Merges adjacent textfragments, which have the same formattings.
-	*/
-	public function merge_textfragments() {
-		if(count($this->textfragments) == 0) {
-			return;
-		}
+// 	/*
+// 	 * Merges adjacent textfragments, which have the same formattings.
+// 	*/
+// 	public function merge_textfragments() {
+// 		if(count($this->textfragments) == 0) {
+// 			return;
+// 		}
 	
-		$new_textfragments = array();
+// 		$new_textfragments = array();
 	
-		$last_textfragment = null;
-		foreach ($this->textfragments as $textfragment) {
-			if($last_textfragment == null) {
-				$last_textfragment = $textfragment;
-			}
-			else {
-				$diff1 = array_diff_assoc($last_textfragment->get_formattings(), $textfragment->get_formattings());
-				$diff2 = array_diff_assoc($textfragment->get_formattings(), $last_textfragment->get_formattings());
+// 		$last_textfragment = null;
+// 		foreach ($this->textfragments as $textfragment) {
+// 			if($last_textfragment == null) {
+// 				$last_textfragment = $textfragment;
+// 			}
+// 			else {
+// 				$diff1 = array_diff_assoc($last_textfragment->get_formattings(), $textfragment->get_formattings());
+// 				$diff2 = array_diff_assoc($textfragment->get_formattings(), $last_textfragment->get_formattings());
 	
-				if(count($diff1) == 0 && count($diff2) == 0) {
-					$last_textfragment = new textfragment($last_textfragment->get_text() . $textfragment->get_text(), $last_textfragment->get_formattings());
-				}
-				else {
-					array_push($new_textfragments, $last_textfragment);
-					$last_textfragment = $textfragment;
-				}
-			}
-		}
+// 				if(count($diff1) == 0 && count($diff2) == 0) {
+// 					$last_textfragment = new textfragment($last_textfragment->get_text() . $textfragment->get_text(), $last_textfragment->get_formattings());
+// 				}
+// 				else {
+// 					array_push($new_textfragments, $last_textfragment);
+// 					$last_textfragment = $textfragment;
+// 				}
+// 			}
+// 		}
 	
-		array_push($new_textfragments, $last_textfragment);
+// 		array_push($new_textfragments, $last_textfragment);
 	
-		$this->textfragments = $new_textfragments;
-	}
+// 		$this->textfragments = $new_textfragments;
+// 	}
 }
 
 class textfragment {

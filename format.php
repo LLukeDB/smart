@@ -51,7 +51,7 @@ class qformat_smart extends qformat_default {
 	 * @return bool whether this plugin provides import functionality.
 	 */
 	public function provide_import() {
-		return true;
+		return false;  // Not fully implemeted yet.
 	}
 	
 	public function mime_type() {

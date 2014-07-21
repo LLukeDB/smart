@@ -46,6 +46,8 @@ public function parse_to_text($text, $question=null) {
 	$this->init_parser();
 	$this->question = $question;
 	
+	// Remove linebreaks from text.
+	$text = str_replace("\n", "", $text);
 	// Create surrounding text-elements to get valid xml.
 	$text = "<text>" . $text . "</text";
 	
@@ -64,6 +66,8 @@ public function parse_to_text($text, $question=null) {
 }
 
 public function parse_to_string($text) {
+	// Remove linebreaks from text.
+	$text = str_replace("\n", "", $text);
 	return strip_tags($text);
 }
 

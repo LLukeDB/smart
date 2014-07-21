@@ -128,7 +128,7 @@ class page_generator extends file_generator {
 		$label_geometry = $this->generate_text($g, $text, 25, 0, false);
 		
 		// Write 2nd text-element.
-		$this->generate_text($g, $this->question->questiontext, 60, 710, true);
+		$this->generate_text($g, $this->question->questiontext, 60, 730, true);
 		
 		// Set remaining attributes.
 		//$g->addAttribute("labelwidth", ceil($label_geometry['width']));
