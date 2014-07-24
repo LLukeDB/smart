@@ -25,7 +25,10 @@ class page_generator extends file_generator {
 
 		// Write pageX.svg to directory.
 		$filename = $dir . $this->question->page_name;
-		return save_simplexml($this->xml, $filename);
+		$string = $this->xml->asXML();
+		$string = str_replace("&#10;", "\n", $string);  // Replace escpae sequence for linebreak with real linebreak. Needed for shortanswer questions.
+		return file_put_contents($filename, $string);
+		//return save_simplexml($this->xml, $filename);
 	}
 
 	protected function generate_xml() {

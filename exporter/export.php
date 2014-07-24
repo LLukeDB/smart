@@ -473,12 +473,13 @@ class shortanswer_exporter extends qformat_exporter {
 		$correct = "";
 		$count = 0;
 		foreach($manswers as $manswer) {
-			//$correct .= $manswer->answer . "\r\n";  // TODO check
-			$correct .= $manswer->answer . chr(10) . chr(13);  // TODO check
+			//$correct .= $manswer->answer . "\r\n";
+			$correct .= $manswer->answer . "\n";
 			if(++$count >= 4) {
 				break;
 			}
 		}
+		$correct = substr($correct, 0, strlen($correct) - 1);  // Delete last linebreak.
 		$question->correct = $correct;
 
 		// Set question data.
