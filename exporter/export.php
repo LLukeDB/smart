@@ -358,7 +358,9 @@ class matching_exporter extends qformat_exporter {
 
 		// Generate a multiple choice question for each subquestion.
 		foreach($subquestions as $subquestion) {
-			$this->generate_multichoice_question($subquestion, $export_data);
+			if(strlen(trim($subquestion->questiontext)) > 0) {
+				$this->generate_multichoice_question($subquestion, $export_data);
+			}
 		}
 	}
 
