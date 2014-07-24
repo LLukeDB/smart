@@ -46,13 +46,12 @@ public function parse_to_text($text, $question=null) {
 	$this->init_parser();
 	$this->question = $question;
 	
-	// Remove linebreaks from text.
+	// Prepare text.
 	$text = str_replace("\n", "", $text);
+	$text = str_replace("\r", "", $text);
+	
 	// Create surrounding text-elements to get valid xml.
 	$text = "<text>" . $text . "</text";
-	
-	// Delete linebreaks from the text.
-	str_replace("\n", "", $text);
 	
 	if (! xml_parse ( $this->xml_parser, $text )) {
 		$a = new stdClass();
@@ -186,7 +185,12 @@ private function translate_style($stylename, $stylevalue) {
 	switch($stylename) {
 		case "font-family": 
 			$fonts = preg_split("/,\s*/", $stylevalue);
-			$font = $fonts[0]; // Take only the first specified font.
+			if(count($fonts) >= 2) {
+				$font = $fonts[0]; // Take only the first specified font.
+			}
+			else {
+				$font = $fonts[0];
+			}
 			$font = str_replace("'", "", $font);
 			//$font = preg_replace('/[^A-Za-z0-9 -_]/', '', $font);
 			$returnvalue = array("font-family" => $font); 

@@ -61,8 +61,10 @@ class text {
 		if(count($paragraphs) > 1) {
 			if($paragraphs[0]->is_empty()) {
 				$this->paragraphs = array_slice($paragraphs, 1);
+				$this->remove_empty_paragraphs_at_the_beginning();
 			}
 		}
+		return;
 	}
 	
 	private function remove_empty_paragraphs_at_the_end() {
@@ -70,8 +72,10 @@ class text {
 		if(count($paragraphs) > 1) {
 			if($paragraphs[count($paragraphs) - 1]->is_empty()) {
 				$this->paragraphs = array_slice($paragraphs, 0, count($paragraphs) - 1);
+				$this->remove_empty_paragraphs_at_the_end();
 			}
 		}
+		return;
 	}
 	
 }
@@ -165,7 +169,8 @@ class paragraph {
 		$subtext = "";
 		for ($i = 0; $i < strlen($text); $i++) {
 			$subtext .= $text[$i];
-			if($text[$i] == '#') {
+			//if($text[$i] == '#') {  // DEBUGGING space
+			if($text[$i] == ' ') {
 				array_push($splits, $subtext);
 				$subtext = "";
 			}
@@ -183,7 +188,7 @@ class paragraph {
 		foreach ($textfragments as $textfragment) {
 			if($textfragment->get_metrics()->width > $line_width) {
 				$splits = $this->split_too_long_textfragment($textfragment, $line_width);
-				$new_textfragments = array_merge($new_textfragments, $splits);  // ???
+				$new_textfragments = array_merge($new_textfragments, $splits);
 			}
 			else {
 				array_push($new_textfragments, $textfragment);
@@ -256,8 +261,9 @@ class paragraph {
 	public function is_empty() {
 		$return = true;
 		foreach ($this->textfragments as $textfragment) {
-			$text = trim($textfragment->get_text());
-			if($text != "") {
+			$text = trim($textfragment->get_text(), "\xc2\xa0");
+			if(strlen($text) > 0) {
+			//if(preg_match("/\S/", $text) == 0) {
 				$return = false;
 			}
 		}
@@ -379,7 +385,7 @@ class textfragment {
 	private $metrics = null;
 	
 	public function __construct($text, $formattings) {
-		$text = str_replace(" ", "#", $text);
+		//$text = str_replace(" ", "#", $text);  // DEBUGGING space
 		$this->text = $text;
 		$this->formattings = $formattings;
 	}
@@ -427,40 +433,106 @@ class textfragment {
 	}
 	
 	private function calculate_metrics() {
+		// Set font properties.
 		$im = new Imagick ();
 		//$im->setResolution(800, 600);
 		$draw = new ImagickDraw ();
 		$draw->setStrokeColor ("none");
-		$font = str_replace(' ', '-', $this->formattings['font-family']);
+		//$font = str_replace(' ', '-', $this->formattings['font-family']);
+		$font = $this->get_imagick_fontname();
 		$draw->setFont($font);
 		//$draw->setfontfamily($this->formattings['font-family']);
 		$draw->setFontSize (intval($this->formattings['font-size']));
 		$draw->setTextAlignment (Imagick::ALIGN_LEFT);
-		if(array_key_exists('font-style', $this->formattings)) {
-			$draw->setfontstyle(imagick::STYLE_ITALIC );
-		}
-		if(array_key_exists('font-weight', $this->formattings)) {
-			$draw->setfontweight(600);
-		}
-		if(array_key_exists('text-decoration', $this->formattings)) {
-			$draw->settextdecoration(imagick::DECORATION_UNDERLINE);
-		}
-		if(array_key_exists('text-strikeout', $this->formattings)) {
-			$draw->settextdecoration(imagick::DECORATION_LINETROUGH);
-		}
+		$draw->settextencoding("UTF-8");
+// 		if(array_key_exists('font-style', $this->formattings)) {
+// 			$draw->setfontstyle(imagick::STYLE_ITALIC );
+// 		}
+// 		if(array_key_exists('font-weight', $this->formattings)) {
+// 			$draw->setfontweight(600);
+// 		}
+// 		if(array_key_exists('text-decoration', $this->formattings)) {
+// 			$draw->settextdecoration(imagick::DECORATION_UNDERLINE);
+// 		}
+// 		if(array_key_exists('text-strikeout', $this->formattings)) {
+// 			$draw->settextdecoration(imagick::DECORATION_LINETROUGH);
+// 		}
 		
-		
+		// Query font metrics.
 		$imagic_metrics = $im->queryFontMetrics ($draw, $this->text);
 		
+		// Create new metrics object.
 		$metrics = new metrics();
 		$metrics->baseline = $baseline = $imagic_metrics['boundingBox']['y2'];
 		//$metrics->width = $imagic_metrics['textWidth'] + 2 * $imagic_metrics['boundingBox']['x1'];
-		//$metrics->width = $imagic_metrics['textWidth'] + $imagic_metrics['boundingBox']['x1'] - $imagic_metrics['boundingBox']['x2'];
 		$metrics->width = $imagic_metrics['textWidth'];
-		//$metrics->height = $imagic_metrics['textHeight'] + $imagic_metrics['descender'];
 		$metrics->height = $imagic_metrics['textHeight'];
 		
 		$this->metrics = $metrics;
+	}
+	
+	private function get_imagick_fontname() {
+		$fontname = strtolower($this->formattings['font-family']);
+		$italic = array_key_exists('font-style', $this->formattings);
+		$bold = array_key_exists('font-weight', $this->formattings);
+		
+		$imagick_fontname = "";
+		
+		// Translate fontname.
+		if($fontname === "courier new") {
+			$imagick_fontname = "Courier-New";
+		}
+		else if($fontname === "trebuchet ms") {
+			$imagick_fontname = "Trebuchet-MS";
+		}
+		else if($fontname === "Trebuchet") {
+			$imagick_fontname = "Trebuchet-MS";
+		}
+		else if($fontname === "arial") {
+			$imagick_fontname = "Arial";
+		}
+		else if($fontname === "georgia") {
+			$imagick_fontname = "Georgia";
+		}
+		else if($fontname === "tahoma") {
+			$imagick_fontname = "Tahoma";  // Not available in italic!
+			$italic = false;
+		}
+		else if($fontname === "times new roman") {
+			$imagick_fontname = "Times-New-Roman";
+		}
+		else if($fontname === "verdana") {
+			$imagick_fontname = "Verdana";
+		}
+		else if($fontname === "impact") {
+			$imagick_fontname = "Impact";  // Only regular!
+			$italic = false;
+			$bold = false;
+		}
+		else if($fontname === "wingdings") {
+			$imagick_fontname = "Wingdings";  // Only regular!
+			$italic = false;
+			$bold = false;
+		}
+		else {
+			$imagick_fontname = $fontname;
+		}
+		
+		// Set font style.
+		if(!$italic && !$bold) {
+			$imagick_fontname .= "-Regular";
+		}
+		else if($italic && !$bold) {
+			$imagick_fontname .= "-Italic";
+		}
+		else if(!$italic && $bold) {
+			$imagick_fontname .= "-Bold";
+		}
+		else if($italic && $bold) {
+			$imagick_fontname .= "-Bold-Italic";
+		}
+		
+		return $imagick_fontname;
 	}
 	
 }

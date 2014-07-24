@@ -26,7 +26,9 @@ class page_generator extends file_generator {
 		// Write pageX.svg to directory.
 		$filename = $dir . $this->question->page_name;
 		$string = $this->xml->asXML();
-		$string = str_replace("&#10;", "\n", $string);  // Replace escpae sequence for linebreak with real linebreak. Needed for shortanswer questions.
+		if($this->question->format == "short-answer") {
+			$string = str_replace("&#10;", "\n", $string);  // Replace escpae sequence for linebreak with real linebreak. Needed for shortanswer questions.
+		}
 		return file_put_contents($filename, $string);
 		//return save_simplexml($this->xml, $filename);
 	}
@@ -131,7 +133,7 @@ class page_generator extends file_generator {
 		$label_geometry = $this->generate_text($g, $text, 25, 0, false);
 		
 		// Write 2nd text-element.
-		$this->generate_text($g, $this->question->questiontext, 60, 730, true);
+		$this->generate_text($g, $this->question->questiontext, 60, 715, true);
 		
 		// Set remaining attributes.
 		//$g->addAttribute("labelwidth", ceil($label_geometry['width']));
@@ -164,7 +166,7 @@ class page_generator extends file_generator {
 		$label_geometry = $this->generate_text($g, $choice->choicelabel, 83, 0, $this->question->format == 'trueorfalse' ? true : false);
 	
 		// Write 2nd text-element (text).
-		$this->generate_text($g, $choice->choicetext, 117, 670, true);
+		$this->generate_text($g, $choice->choicetext, 117, 658, true);
 		
 		// Write bullets.
 		switch ($this->question->format) {
