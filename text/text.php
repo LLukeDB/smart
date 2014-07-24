@@ -150,7 +150,7 @@ class paragraph {
 			//$splits = preg_split("/ /", $textfragment->get_text());
 			$splits = $this->split_string($textfragment->get_text());
 			foreach ($splits as $split) {
-				$new_textfragment = new textfragment($split . " ", $textfragment->get_formattings());
+				$new_textfragment = new textfragment($split, $textfragment->get_formattings());
 				array_push($new_textfragments, $new_textfragment);
 			}
 		}
@@ -162,17 +162,16 @@ class paragraph {
 	private function split_string($text) {
 		$splits = array();
 		
-		$last = 0;
-		for($i = 0; $i < strlen($text); $i++) {
-			if($text[$i] == ' ') {
-				$split = substr($text, $last, $i - $last);
-				array_push($splits, $split);
-				$last = $i+1;
+		$subtext = "";
+		for ($i = 0; $i < strlen($text); $i++) {
+			$subtext .= $text[$i];
+			if($text[$i] == '#') {
+				array_push($splits, $subtext);
+				$subtext = "";
 			}
 		}
-		if($last < strlen($text)) {
-			$split = substr($text, $last);
-			array_push($splits, $split);
+		if(strlen($subtext) > 0) {
+			array_push($splits, $subtext);
 		}
 		
 		return $splits;
@@ -380,6 +379,7 @@ class textfragment {
 	private $metrics = null;
 	
 	public function __construct($text, $formattings) {
+		$text = str_replace(" ", "#", $text);
 		$this->text = $text;
 		$this->formattings = $formattings;
 	}
@@ -418,15 +418,23 @@ class textfragment {
 		return $this->metrics;
 	}
 	
+	function strToHex($string){
+		$hex='';
+		for ($i=0; $i < strlen($string); $i++){
+			$hex .= dechex(ord($string[$i]));
+		}
+		return $hex;
+	}
+	
 	private function calculate_metrics() {
 		$im = new Imagick ();
-		$im->setResolution(800, 600);
+		//$im->setResolution(800, 600);
 		$draw = new ImagickDraw ();
 		$draw->setStrokeColor ("none");
 		$font = str_replace(' ', '-', $this->formattings['font-family']);
 		$draw->setFont($font);
 		//$draw->setfontfamily($this->formattings['font-family']);
-		$draw->setFontSize ($this->formattings['font-size']);
+		$draw->setFontSize (intval($this->formattings['font-size']));
 		$draw->setTextAlignment (Imagick::ALIGN_LEFT);
 		if(array_key_exists('font-style', $this->formattings)) {
 			$draw->setfontstyle(imagick::STYLE_ITALIC );
@@ -440,11 +448,15 @@ class textfragment {
 		if(array_key_exists('text-strikeout', $this->formattings)) {
 			$draw->settextdecoration(imagick::DECORATION_LINETROUGH);
 		}
+		
+		
 		$imagic_metrics = $im->queryFontMetrics ($draw, $this->text);
 		
 		$metrics = new metrics();
 		$metrics->baseline = $baseline = $imagic_metrics['boundingBox']['y2'];
-		$metrics->width = $imagic_metrics['textWidth'] + 2 * $imagic_metrics['boundingBox']['x1'];
+		//$metrics->width = $imagic_metrics['textWidth'] + 2 * $imagic_metrics['boundingBox']['x1'];
+		//$metrics->width = $imagic_metrics['textWidth'] + $imagic_metrics['boundingBox']['x1'] - $imagic_metrics['boundingBox']['x2'];
+		$metrics->width = $imagic_metrics['textWidth'];
 		//$metrics->height = $imagic_metrics['textHeight'] + $imagic_metrics['descender'];
 		$metrics->height = $imagic_metrics['textHeight'];
 		

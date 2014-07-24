@@ -256,10 +256,10 @@ class page_generator extends file_generator {
 			$tf_tspan = $line_tspan->addChild("tspan" , $textfragment->get_text());
 			$this->set_formatting_attributes($tf_tspan, $textfragment->get_formattings());
 			$tf_tspan->addAttribute("y", "$tf_baseline");
-
-			if($rel_xpos == 0) {
-				$tf_tspan->addAttribute("x", $rel_xpos);
-			}
+			$tf_tspan->addAttribute("textLength", $textfragment->get_metrics()->width);
+			//if($rel_xpos == 0) {
+			$tf_tspan->addAttribute("x", $rel_xpos);
+			//}
 			$rel_xpos += $textfragment->get_metrics()->width;
 		}
 		

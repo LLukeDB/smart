@@ -55,8 +55,8 @@ class qformat_smart extends qformat_default {
 	}
 	
 	public function mime_type() {
-		//return 'application/x-smarttech-notebook';
-		return 'multipart/x-zip';
+		return 'application/x-smarttech-notebook';
+		//return 'multipart/x-zip';
 	}
 	
 	// IMPORT FUNCTIONS START HERE
@@ -270,7 +270,7 @@ class qformat_smart extends qformat_default {
 	 */
 	public function exportprocess() {
 		global $CFG, $OUTPUT, $DB, $USER;
-		
+
 		// get the questions (from database) in this category
 		// only get q's with no parents (no cloze subquestions specifically)
 		if ($this->category) {

@@ -32,7 +32,7 @@ private function init_parser() {
 
 public static function get_defalt_formattings() {
 	$default_formattings = array("fill" => "#000000",
-			"font-size" => "28.000",
+			"font-size" => "20.000",		// TODO Adjust.
 			"font-family" => "Arial",
 			"char-transform" => "0.00 1.00 0.00 0.00 0.00 1.00");
 	return $default_formattings;
@@ -186,7 +186,10 @@ private function translate_style($stylename, $stylevalue) {
 	switch($stylename) {
 		case "font-family": 
 			$fonts = preg_split("/,\s*/", $stylevalue);
-			$returnvalue = array("font-family" => $fonts[0]); // Take only the first specified font.
+			$font = $fonts[0]; // Take only the first specified font.
+			$font = str_replace("'", "", $font);
+			//$font = preg_replace('/[^A-Za-z0-9 -_]/', '', $font);
+			$returnvalue = array("font-family" => $font); 
 			break;
 		case "font-size":
 			$font_size = "";
@@ -281,12 +284,6 @@ private function log_error($formatting) {
 		error_logger::get_instance()->log_error($error_msg);
 	}
 }
-
-// function parseDEFAULT($parser, $data) {
-// 	$data = preg_replace ( "/</", "&lt;", $data );
-// 	$data = preg_replace ( "/>/", "&gt;", $data );
-// 	echo "parseDEFAULT " . $data;
-// }
 
 }
 
