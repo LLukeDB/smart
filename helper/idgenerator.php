@@ -1,52 +1,67 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 class id_generator {
 
-	private static $instance = null;
+    private static $instance = null;
 
-	private $ID_LENGTH = 25;
-	private $used_values;
+    private $idlength = 25;
 
-	private function __construct() {
-		$this->used_values = array();
-	}
+    private $usedvalues;
 
-	public static function get_instance() {
-		if(id_generator::$instance == null) {
-			id_generator::$instance = new id_generator();
-		}
-		return id_generator::$instance;
-	}
+    private function __construct() {
+        $this->usedvalues = array();
+    }
 
-	private function rand_char() {
-		$r = rand(0, 45);
+    public static function get_instance() {
+        if (self::$instance == null) {
+            self::$instance = new id_generator();
+        }
+        
+        return self::$instance;
+    }
 
-		if($r <= 25) {
-			$c = ord('A') + $r;
-		}
-		else {
-			$c = ord('0') + ($r - 25) % 10;
-		}
-		return chr($c);
-	}
+    private function rand_char() {
+        $r = rand(0, 45);
+        
+        if ($r <= 25) {
+            $c = ord('A') + $r;
+        } else {
+            $c = ord('0') + ($r - 25) % 10;
+        }
+        
+        return chr($c);
+    }
 
-	private function generate_unchecked_id() {
-		$rand_id = '';
-		for($i = 0; $i < $this->ID_LENGTH; $i++) {
-			$rand_id .= $this->rand_char();
-		}
+    private function generate_unchecked_id() {
+        $randid = '';
+        for ($i = 0; $i < $this->idlength; $i++) {
+            $randid .= $this->rand_char();
+        }
+        
+        return $randid;
+    }
 
-		return $rand_id;
-	}
+    public function generate_id() {
+        $id = '';
+        do {
+            $id = $this->generate_unchecked_id();
+        } while (in_array($id, $this->usedvalues));
+        
+        array_push($this->usedvalues, $id);
+        return $id;
+    }
 
-	public function generate_id() {
-		$id = '';
-		{
-			$id = $this->generate_unchecked_id();
-		} while(in_array($id, $this->used_values))
-
-			array_push($this->used_values, $id);
-		return $id;
-	}
 }
-
-?>

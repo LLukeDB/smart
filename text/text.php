@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 require_once ($CFG->dirroot . '/question/format/smart/helper/simplexml_helper.php');
 
@@ -8,6 +22,12 @@ class text {
 	
 	public function __construct() {
 		$this->paragraphs = array();
+	}
+	
+	public function set_width($width) {
+	    foreach ($this->paragraphs as $paragraph) {
+	        $paragraph->set_width($width);
+	    }
 	}
 	
 	public function add_paragraph() {
@@ -78,15 +98,41 @@ class text {
 		return;
 	}
 	
+	public function get_metrics() {
+	    $paragraphs = $this->get_paragraphs();
+	    $tmetrics = new metrics();
+	    $tmetrics->width = 0;
+	    $tmetrics->height = 0;
+	    foreach ($paragraphs as $paragraph) {
+	        $pmetrics = $paragraph->get_metrics();
+	        $tmetrics->height += $pmetrics->height;
+	        if($pmetrics->width > $tmetrics->width) {
+	            $tmetrics->width = $pmetrics->width;
+	        }
+	    }
+	    return $tmetrics;
+	}
+	
 }
 
 class paragraph {
 		
-	private $lines = array();
-	private $textfragments = array();
+	private $lines;
+	private $textfragments;
+	private $width;
+	
+	public function __construct() {
+	    $this->lines = array();
+	    $this->textfragments = array();
+	    $this->width = 0;
+	}
 	
 	public function add_textfragment($textfragment) {
 		array_push($this->textfragments, $textfragment);
+	}
+	
+	public function set_width($width) {
+	    $this->width = $width;
 	}
 	
 	public function toString() {
@@ -98,15 +144,15 @@ class paragraph {
 		return $s;
 	}
 	
-	public function get_lines($line_width = 0) {
-		if($line_width <= 0) {
+	public function get_lines() {
+		if($this->width <= 0) {
 			$lines = array();
 			$line = new line($this->textfragments);
 			array_push($lines, $line);
 			$this->lines = $lines;
 		}
 		else {
-			$this->calculate_lines($line_width);
+			$this->calculate_lines();
 		}
 		return $this->lines;
 	}
@@ -114,29 +160,31 @@ class paragraph {
 	/*
 	 * Breaks paragraph into several lines with the given width.
 	 */
-	private function calculate_lines($line_width) {
-		$splits = $this->split_textfragments($line_width);
+	private function calculate_lines() {
+		$splits = $this->split_textfragments($this->width);
 		$lines = array();
 		$line_fragments = array();
 		$current_width = 0;
-		foreach ($splits as $split) {
-			if($current_width + $split->get_metrics()->width <= $line_width) {
-				$current_width += $split->get_metrics()->width;
-				array_push($line_fragments, $split);
+		if(count($splits) > 0){
+			foreach ($splits as $split) {
+				if($current_width + $split->get_metrics()->width <= $this->width) {
+					$current_width += $split->get_metrics()->width;
+					array_push($line_fragments, $split);
+				}
+				else {
+					$merged_line_fragments = $this->merge_textfragments($line_fragments);
+					$line = new line($merged_line_fragments);
+					array_push($lines, $line);
+					$line_fragments = array();
+					array_push($line_fragments, $split);
+					$current_width = $split->get_metrics()->width;
+				}
 			}
-			else {
+			if(count($line_fragments) > 0) {
 				$merged_line_fragments = $this->merge_textfragments($line_fragments);
 				$line = new line($merged_line_fragments);
 				array_push($lines, $line);
-				$line_fragments = array();
-				array_push($line_fragments, $split);
-				$current_width = $split->get_metrics()->width;
 			}
-		}
-		if(count($line_fragments) > 0) {
-			$merged_line_fragments = $this->merge_textfragments($line_fragments);
-			$line = new line($merged_line_fragments);
-			array_push($lines, $line);
 		}
 		$this->lines = $lines;
 	}
@@ -270,12 +318,29 @@ class paragraph {
 			
 		return $return;
 	}
+	
+	public function get_metrics() {
+	    $lines = $this->get_lines();
+	    $pmetrics = new metrics();
+	    $pmetrics->width = 0;
+	    $pmetrics->height = 0;
+	    $width = 0;
+	    $heigth = 0;
+	    foreach ($lines as $line) {
+	        $lmetrics = $line->get_metrics();
+	        $pmetrics->height += $lmetrics->height;
+	        if($lmetrics->width > $pmetrics->width) {
+	            $pmetrics->width = $lmetrics->width;
+	        }
+	    }
+	    return $pmetrics;
+	}
 }
 
 class line {
 	
-	private $textfragments = array();
-	private $metrics =  null;
+	private $textfragments;
+	private $metrics;
 
 	public function __construct($textfragments) {
 		$this->textfragments = $textfragments;
@@ -283,7 +348,6 @@ class line {
 	}
 	
 	public function get_textfragments() {
-		//$this->merge_textfragments();
 		return $this->textfragments;
 	}
 	
@@ -343,51 +407,19 @@ class line {
 		$this->metrics = $metrics;
 	}
 	
-// 	/*
-// 	 * Merges adjacent textfragments, which have the same formattings.
-// 	*/
-// 	public function merge_textfragments() {
-// 		if(count($this->textfragments) == 0) {
-// 			return;
-// 		}
-	
-// 		$new_textfragments = array();
-	
-// 		$last_textfragment = null;
-// 		foreach ($this->textfragments as $textfragment) {
-// 			if($last_textfragment == null) {
-// 				$last_textfragment = $textfragment;
-// 			}
-// 			else {
-// 				$diff1 = array_diff_assoc($last_textfragment->get_formattings(), $textfragment->get_formattings());
-// 				$diff2 = array_diff_assoc($textfragment->get_formattings(), $last_textfragment->get_formattings());
-	
-// 				if(count($diff1) == 0 && count($diff2) == 0) {
-// 					$last_textfragment = new textfragment($last_textfragment->get_text() . $textfragment->get_text(), $last_textfragment->get_formattings());
-// 				}
-// 				else {
-// 					array_push($new_textfragments, $last_textfragment);
-// 					$last_textfragment = $textfragment;
-// 				}
-// 			}
-// 		}
-	
-// 		array_push($new_textfragments, $last_textfragment);
-	
-// 		$this->textfragments = $new_textfragments;
-// 	}
 }
 
 class textfragment {
 	
 	private $text;
-	private $formattings = array();
-	private $metrics = null;
+	private $formattings;
+	private $metrics;
 	
 	public function __construct($text, $formattings) {
 		//$text = str_replace(" ", "#", $text);  // DEBUGGING space
 		$this->text = $text;
 		$this->formattings = $formattings;
+		$this->metrics = null;
 	}
 	
 	public function toString() {
@@ -464,7 +496,6 @@ class textfragment {
 		// Create new metrics object.
 		$metrics = new metrics();
 		$metrics->baseline = $baseline = $imagic_metrics['boundingBox']['y2'];
-		//$metrics->width = $imagic_metrics['textWidth'] + 2 * $imagic_metrics['boundingBox']['x1'];
 		$metrics->width = $imagic_metrics['textWidth'];
 		$metrics->height = $imagic_metrics['textHeight'];
 		
@@ -538,8 +569,7 @@ class textfragment {
 }
 
 class metrics {
-	public $baseline;
-	public $width;
-	public $height;
+	public $baseline = null;
+	public $width = null;
+	public $height = null;
 }
-

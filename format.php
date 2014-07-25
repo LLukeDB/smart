@@ -51,7 +51,7 @@ class qformat_smart extends qformat_default {
 	 * @return bool whether this plugin provides import functionality.
 	 */
 	public function provide_import() {
-		return false;  // Not fully implemeted yet.
+		return false;  // Not fully implemented yet.
 	}
 	
 	public function mime_type() {
@@ -397,7 +397,6 @@ class qformat_smart extends qformat_default {
 		
 		// Create zip-file from export_data.
 		$zip_file = $export_data->toZIP();
-// 		$this->start_download($zip_file);
 
 		// Return the zip file.
 		$filehandle = fopen($zip_file, "r");
@@ -405,9 +404,8 @@ class qformat_smart extends qformat_default {
 		fclose($filehandle);
 		//unlink($zip_file);
 		
-// 		$fh = fopen("/opt/lampp/apps/moodle/moodledata/temp/test.zip", "w");
-// 		fwrite($fh, $filecontent);
-		return $filecontent;
+		//return $filecontent;
+		$this->start_download($filecontent);
 	}
 	
 	public function get_continue_path() {
@@ -425,27 +423,23 @@ class qformat_smart extends qformat_default {
 		return true;
 	}
 	
-// 	private function start_download($zipfile) {
-// 		$filehandle = fopen($zipfile, "r");
-// 		$filecontent = fread($filehandle, filesize($zipfile));
-// 		fclose($filehandle);
+	private function start_download($filecontent) {
+		$name = "quiz-" . $this->course->shortname . "-" . $this->category->name . "-" . $date = date("Ymd-Hi") . ".notebook";
+		$name = str_replace(" ", "_", $name);
+		$encoding = "BASE64";
 		
-// 		$name = "xyz 123.zip";
-// 		$type = "APPLICATION";
-// 		$subtype = "ZIP";
-// 		$encoding = "BASE64";
-		
-// 		header('Content-Description: File Transfer');
-// 		header('Content-Type: '. $type .'/'. $subtype);
-// 		header('Content-Disposition: attachment; filename='.$name);
-// 		header('Content-Transfer-Encoding: '.$encoding);
-// 		header('Expires: 0');
-// 		header('Cache-Control: must-revalidate');
-// 		header('Pragma: public');
-// 		ob_clean();
-// 		flush();
-// 		echo $filecontent;
-// 	}
+		header('Content-Description: File Transfer');
+		header('Content-Type: '. $this->mime_type());
+		header('Content-Disposition: attachment; filename='. $name);
+		header('Content-Transfer-Encoding: '.$encoding);
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate');
+		header('Pragma: public');
+		ob_clean();
+		flush();
+		echo $filecontent;
+		die();
+	}
 }
-?>
+
 

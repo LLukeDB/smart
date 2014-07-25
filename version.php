@@ -29,5 +29,3 @@ $plugin->component  = 'qformat_smart';  // Plugin name
 $plugin->release  = '1.0'; 				// The current module release in human-readable form (x.y)
 $plugin->requires = 2011070100.03;  	// Requires Moodle 2.1 or later
 $plugin->cron     = 0;           		// Period for cron to check this module (secs)
-
-?>

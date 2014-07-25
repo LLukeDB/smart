@@ -1,11 +1,25 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-require_once ($CFG->dirroot . '/question/format/smart/format.php');
-require_once ($CFG->dirroot . '/question/format/smart/helper/filetools.php');
-require_once ($CFG->dirroot . '/question/format/smart/generator/generator.php');
-require_once ($CFG->dirroot . '/question/format/smart/helper/simplexml_helper.php');
-require_once ($CFG->dirroot . '/question/format/smart/text/text.php');
-require_once ($CFG->dirroot . '/question/format/smart/text/html_parser.php');
+require_once($CFG->dirroot . '/question/format/smart/format.php');
+require_once($CFG->dirroot . '/question/format/smart/helper/filetools.php');
+require_once($CFG->dirroot . '/question/format/smart/generator/generator.php');
+require_once($CFG->dirroot . '/question/format/smart/helper/simplexml_helper.php');
+require_once($CFG->dirroot . '/question/format/smart/text/text.php');
+require_once($CFG->dirroot . '/question/format/smart/text/html_parser.php');
 
 class page_generator extends file_generator {
 
@@ -69,7 +83,7 @@ class page_generator extends file_generator {
 	private function generate_choicequestion_page() {
 		$this->generate_question();
 		foreach($this->question->choices as $choice) {
-			$this->ypos += 10; // Add margin.
+			$this->ypos += 20; // Add margin.
 			$this->generate_choice($choice);
 		}
 	}
@@ -198,32 +212,33 @@ class page_generator extends file_generator {
 		$geometry = new stdClass();
 		$geometry->rel_ypos = 0;
 		
+		$text->set_width($width);
+		
 		// Create text element.
 		$text_elem = $parent->addChild("text");
 		
 		// Generate all paragraphs.
 		$paragraphs = $text->get_paragraphs();
 		foreach ($paragraphs as $paragraph) {
-			$geometry = $this->generate_paragraph($text_elem, $paragraph, $geometry, $width);
+			$geometry = $this->generate_paragraph($text_elem, $paragraph, $geometry);
 		}
 		
+		$tmetrics = $text->get_metrics();
+		
 		// Set Attributes of text element.
-		//$geometry = $this->getTextGeometry($text_elem);
-		//$ypos = $this->ypos + 10; // Add margin.
-		$text_elem->addAttribute("transform", "translate($xpos," . $this->ypos . ")");
-		//$text_elem->addAttribute("transform", "translate($xpos," . $this->ypos . ") rotate(0.000," . $geometry['width'] / 2 . "," . $geometry['height'] / 2 . ") scale(1.000,1.000)");
+		//$text_elem->addAttribute("transform", "translate($xpos," . $this->ypos . ")");
+		$text_elem->addAttribute("transform", "translate($xpos," . $this->ypos . ") rotate(0.000," . ($width > 0 ? $width : $tmetrics->width) / 2.0 . "," . $tmetrics->height / 2.0 . ") scale(1.000,1.000)");
 		//$text_elem->addAttribute("RotationPoint", "(346.500000,240.000000)"); // TODO  Calculate coordinates.
 		$text_elem->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
 		$text_elem->addAttribute("visible", 1);
 		$text_elem->addAttribute("smart-txt-ver", "2.10");
-		//$text_elem->addAttribute("editwidth", $geometry['width']);
-		//$text_elem->addAttribute("editheight", $geometry['height']);
- 		//$text_elem->addAttribute("forcewidth", $width > 0 ? "1" : "0");
-// 		$text_elem->addAttribute("forceheight", "0");
-// 		$text_elem->addAttribute("language_direction", "1");
-// 		$text_elem->addAttribute("textdirection", "0");
-// 		$text_elem->addAttribute("theme_anno_style", "0");
-		
+		$text_elem->addAttribute("editwidth", $width > 0 ? $width : $tmetrics->width);
+		$text_elem->addAttribute("editheight", $tmetrics->height);
+ 		$text_elem->addAttribute("forcewidth", $width > 0 ? "1" : "0");
+ 		$text_elem->addAttribute("forceheight", "0");
+ 		$text_elem->addAttribute("language_direction", "1");
+ 		$text_elem->addAttribute("textdirection", "0");
+ 		$text_elem->addAttribute("theme_anno_style", "0");
 		
 		// Increase y-position of page if wanted.
 		if($new_line) {
@@ -233,14 +248,14 @@ class page_generator extends file_generator {
 		return $geometry;
 	}
 	
-	private function generate_paragraph($parent, $paragraph, $geometry, $width=0) {
+	private function generate_paragraph($parent, $paragraph, $geometry) {
 		// Create tspan-element for paragraph.
 		$p_tspan = $parent->addChild("tspan");
 		$p_tspan->addAttribute("justification", "left");
 		$p_tspan->addAttribute("bullet", "0");
 		
 		// Generate all lines.
-		$lines = $paragraph->get_lines($width);
+		$lines = $paragraph->get_lines();
 		foreach($lines as $line) {
 			$geometry = $this->generate_line($p_tspan, $line, $geometry);
 		}
@@ -260,8 +275,8 @@ class page_generator extends file_generator {
 		foreach ($line->get_textfragments() as $textfragment) {
 			$tf_tspan = $line_tspan->addChild("tspan" , $textfragment->get_text());
 			$this->set_formatting_attributes($tf_tspan, $textfragment->get_formattings());
-			$tf_tspan->addAttribute("y", "$tf_baseline");
 			$tf_tspan->addAttribute("textLength", $textfragment->get_metrics()->width);
+			$tf_tspan->addAttribute("y", "$tf_baseline");
 			//if($rel_xpos == 0) {
 			$tf_tspan->addAttribute("x", $rel_xpos);
 			//}
@@ -288,7 +303,7 @@ class page_generator extends file_generator {
 	
 		$im = new Imagick();
 		$im->readimageblob($svg->asXML());
-		$im->setImageFormat("png"); // png24
+		$im->setImageFormat("png");
 		$im->trimimage(0);
 	
 		$geometry = $im->getImageGeometry();
@@ -305,7 +320,7 @@ class page_generator extends file_generator {
 	
 		$im = new Imagick();
 		$im->readimageblob($svg->asXML());
-		$im->setImageFormat("png"); // png24
+		$im->setImageFormat("png");
 		$im->trimimage(0);
 	
 		$geometry = $im->getImageGeometry();
