@@ -22,11 +22,11 @@ require_once($CFG->dirroot . '/question/format/smart/helper/idgenerator.php');
 
 class export_data {
 
-	public $pages;						// array of page_generators
-	public $metadataxml_generator;
-	public $settingsxml_generator;
-	public $imsmanifest_generator;
-	public $metadatardf_generator;
+	private $pages;						// array of page_generators
+	private $metadataxml_generator;
+	private $settingsxml_generator;
+	private $imsmanifest_generator;
+	private $metadatardf_generator;
 
 	public function __construct() {
 		$this->pages = array();
@@ -35,9 +35,16 @@ class export_data {
 		$this->metadatardf_generator = new metadatardf_generator();
 		$this->imsmanifest_generator = new imsmanifest_generator();
 	}
-
-	public function add_page($page) {
-		array_push($this->pages, $page);
+	
+	public function add_question($question) {
+	    $page_generator = new page_generator($question);
+	    array_push($this->pages, $page_generator);
+	    $this->metadatardf_generator->add_question($question);
+	    $this->imsmanifest_generator->add_page($question);
+	}
+	
+	public function get_pagecount() {
+	    return count($this->pages);
 	}
 
 	public function toZIP() {
@@ -151,7 +158,7 @@ class log_exporter extends qtype_exporter {
 		$text = $html_parser->parse_to_text($html_text);
 		
 		// Create dummy question with text.
-		$page_num = count($export_data->pages);
+		$page_num = $export_data->get_pagecount();
 
 		$question = new question($page_num);
 		$question->question_num = $page_num + 1;
@@ -160,10 +167,7 @@ class log_exporter extends qtype_exporter {
 		$question->questiontext = $text;
 		$question->format = "noquestion";
 		
-		// Add generators.
-		$page_generator = new page_generator($question);
-		$export_data->add_page($page_generator);
-		$export_data->imsmanifest_generator->add_page("page" . $page_num . ".svg");
+		$export_data->add_question($question);
 	}
 	
 	/*
@@ -195,7 +199,7 @@ class truefalse_exporter extends qtype_exporter {
 	}
 
 	public function export($export_data) {
-		$page_num = count($export_data->pages);
+		$page_num = $export_data->get_pagecount();
 
 		$question = new question($page_num);
 		$question->question_num = $page_num + 1;
@@ -241,11 +245,7 @@ class truefalse_exporter extends qtype_exporter {
 		$choice_false->true = $correct == 1 ? false : true;
 		$question->add_choice($choice_false);
 
-		// Add generators.
-		$page_generator = new page_generator($question);
-		$export_data->add_page($page_generator);
-		$export_data->metadatardf_generator->add_question($question);
-		$export_data->imsmanifest_generator->add_page("page" . $page_num . ".svg");
+		$export_data->add_question($question);
 	}
 
 }
@@ -281,7 +281,7 @@ class multichoice_exporter extends qtype_exporter {
 	}
 
 	private function export_selection_question($export_data) {
-		$page_num = count($export_data->pages);
+		$page_num = $export_data->get_pagecount();
 		$question = new question($page_num);
 		$question->question_num = $page_num + 1;
 
@@ -315,15 +315,11 @@ class multichoice_exporter extends qtype_exporter {
 
 		$question->correct = trim($correct);
 
-		// Add generators.
-		$page_generator = new page_generator($question);
-		$export_data->add_page($page_generator);
-		$export_data->metadatardf_generator->add_question($question);
-		$export_data->imsmanifest_generator->add_page("page" . $page_num . ".svg");
+		$export_data->add_question($question);
 	}
 
 	private function export_choice_question($export_data) {
-		$page_num = count($export_data->pages);
+		$page_num = $export_data->get_pagecount();
 		$question = new question($page_num);
 		$question->question_num = $page_num + 1;
 
@@ -358,11 +354,7 @@ class multichoice_exporter extends qtype_exporter {
 
 		$question->correct = trim($correct);
 
-		// Add generators.
-		$page_generator = new page_generator($question);
-		$export_data->add_page($page_generator);
-		$export_data->metadatardf_generator->add_question($question);
-		$export_data->imsmanifest_generator->add_page("page" . $page_num . ".svg");
+		$export_data->add_question($question);
 	}
 
 }
@@ -389,7 +381,7 @@ class matching_exporter extends qtype_exporter {
 	}
 
 	private function generate_multichoice_question($subquestion, $export_data) {
-		$page_num = count($export_data->pages);
+		$page_num = $export_data->get_pagecount();
 		$question = new question($page_num);
 		$question->question_num = $page_num + 1;
 
@@ -428,11 +420,7 @@ class matching_exporter extends qtype_exporter {
 
 		$question->correct = trim($correct);
 
-		// Add generators.
-		$page_generator = new page_generator($question);
-		$export_data->add_page($page_generator);
-		$export_data->metadatardf_generator->add_question($question);
-		$export_data->imsmanifest_generator->add_page("page" . $page_num . ".svg");
+		$export_data->add_question($question);
 
 	}
 }
@@ -447,7 +435,7 @@ class numerical_exporter extends qtype_exporter {
 	}
 
 	public function export($export_data) {
-		$page_num = count($export_data->pages);
+		$page_num = $export_data->get_pagecount();
 
 		$question = new question($page_num);
 		$question->question_num = $page_num + 1;
@@ -471,11 +459,7 @@ class numerical_exporter extends qtype_exporter {
 		$question->maximumvalue = $answer;
 		$question->minimumvalue = $answer;
 
-		// Add generators.
-		$page_generator = new page_generator($question);
-		$export_data->add_page($page_generator);
-		$export_data->metadatardf_generator->add_question($question);
-		$export_data->imsmanifest_generator->add_page("page" . $page_num . ".svg");
+		$export_data->add_question($question);
 	}
 
 }
@@ -490,7 +474,7 @@ class shortanswer_exporter extends qtype_exporter {
 	}
 
 	public function export($export_data) {
-		$page_num = count($export_data->pages);
+		$page_num = $export_data->get_pagecount();
 
 		$question = new question($page_num);
 		$question->question_num = $page_num + 1;
@@ -520,11 +504,7 @@ class shortanswer_exporter extends qtype_exporter {
 		$question->choicelabelstyle = "";
 		$question->exactmatches = $correct;
 
-		// Add generators.
-		$page_generator = new page_generator($question);
-		$export_data->add_page($page_generator);
-		$export_data->metadatardf_generator->add_question($question);
-		$export_data->imsmanifest_generator->add_page("page" . $page_num . ".svg");
+		$export_data->add_question($question);
 	}
 
 }

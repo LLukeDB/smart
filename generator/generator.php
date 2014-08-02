@@ -57,7 +57,9 @@ class imsmanifest_generator extends file_generator {
 		return save_simplexml($this->xml, $filename);
 	}
 
-	public function add_page($page_name) {
+	public function add_page($question) {
+	    $page_name = "page" . $question->question_num . ".svg";
+	    
 		$page = $this->xml->resources->resource[0]->addChild("file");
 		$page->addAttribute("href", $page_name);
 
@@ -84,11 +86,13 @@ class metadatardf_generator extends file_generator {
 		$this->init();
 
 		foreach ($this->questions as $question) {
-			$this->generate_answer_block($question);
-			foreach ($question->choices as $choice) {
-				$this->generate_choice_block($choice);
-			}
-			$this->generate_page_block($question);
+		    if($question->format != "noquestion") {   // only real questions
+    			$this->generate_answer_block($question);
+    			foreach ($question->choices as $choice) {
+    				$this->generate_choice_block($choice);
+    			}
+    			$this->generate_page_block($question);
+    		}
 		}
 
 		return true;
