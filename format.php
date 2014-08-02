@@ -299,13 +299,12 @@ class qformat_smart extends qformat_default {
 	}
 	
 	public function export_questions($questions) {
-	    $exporter_factory = new qtype_exporter_factory();
 	    
 	    $exporters = array();
 	    $unsupported_questions = array();
 	    
 	    foreach($questions as $question) {
-	        $exporter = $exporter_factory->get_exporter($question);
+	        $exporter = qtype_exporter_factory::get_exporter($question);
 	    
 	        if(!$exporter) {
 	            array_push($unsupported_questions, $question);
@@ -337,7 +336,7 @@ class qformat_smart extends qformat_default {
 	    if(count($log) > 0) {
 	        $dummy_question=new stdClass();
 	        $dummy_question->qtype='log';
-	        $exporter = $exporter_factory->get_exporter($dummy_question);
+	        $exporter = qtype_exporter_factory::get_exporter($dummy_question);
 	        $exporter->export($export_data);
 	    }
 	    

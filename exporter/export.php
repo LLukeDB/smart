@@ -75,7 +75,7 @@ class export_data {
 
 class qtype_exporter_factory {
 
-	public function get_exporter($question) {
+	public static function get_exporter($question) {
 		switch($question->qtype) {
 			case 'category':
 				return new category_exporter();
