@@ -30,6 +30,7 @@ class question {
 	public $correct;				// page: votemetadata -> correct: labels of correct questionchoice blocks, e.g. "1 2"
 	public $points = "";			// page: votemetadata -> points
 	public $explanation = "";		// page: votemetadata -> explanation
+	public $likert = "";            // page: votemetadata -> likert
 
 	public $questionformat;			// rdf: questionformat, eg. choice
 	public $choicelabelstyle;		// rdf: choicelabelstyle, eg. true-false

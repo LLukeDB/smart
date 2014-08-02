@@ -66,7 +66,7 @@ class export_data {
 	}
 }
 
-class qformat_exporter_factory {
+class qtype_exporter_factory {
 
 	public function get_exporter($question) {
 		switch($question->qtype) {
@@ -98,7 +98,7 @@ class qformat_exporter_factory {
 	}
 }
 
-abstract class qformat_exporter {
+abstract class qtype_exporter {
 	
 	protected $mquestion;
 	
@@ -122,7 +122,7 @@ abstract class qformat_exporter {
 /**
  * Dummy class for categories, which does nothing.
  */
-class category_exporter extends qformat_exporter {
+class category_exporter extends qtype_exporter {
 	
 	public function export($export_data) {
 		return;
@@ -132,7 +132,7 @@ class category_exporter extends qformat_exporter {
 /**
  * Class for exporting errors, which have been logged during the export process.
  */
-class log_exporter extends qformat_exporter {
+class log_exporter extends qtype_exporter {
 	
 	public function __construct($question) {
 		
@@ -188,7 +188,7 @@ class log_exporter extends qformat_exporter {
 /**
  * Class for exporting a true-false-question.
  */
-class truefalse_exporter extends qformat_exporter {
+class truefalse_exporter extends qtype_exporter {
 
 	public function __construct($question) {
 		$this->mquestion = $question;
@@ -199,12 +199,21 @@ class truefalse_exporter extends qformat_exporter {
 
 		$question = new question($page_num);
 		$question->question_num = $page_num + 1;
+		
+		// Get trueanswer.
+		$correct = 0;
+		foreach ($this->mquestion->options->answers as $answer) {
+		    if($answer->answer == $text = get_string('true', 'qtype_truefalse')) {
+		        $correct = $answer->fraction > 0 ? 1 : 2;
+		        break;
+		    }
+		}
 
 		// Set question data.
 		$this->set_common_question_data($question);
 		$question->format = "trueorfalse";
 		$question->labelstyle = "true/false";
-		$question->correct = $this->mquestion->options->trueanswer == '292' ? 1 : 2;
+		$question->correct = $correct;
 
 		$question->questionformat = "choice";
 		$question->choicelabelstyle = "true-false";
@@ -219,7 +228,7 @@ class truefalse_exporter extends qformat_exporter {
 		$text = get_string('true', 'qtype_truefalse');
 		$choicelabel = $html_parser->parse_to_text($text);
 		$choice_true->choicelabel = $choicelabel;
-		$choice_true->true = $this->mquestion->options->trueanswer == '292' ? true : false;
+		$choice_true->true = $correct == 1 ? true : false;
 		$question->add_choice($choice_true);
 
 		// Set questionchoice 'false' data.
@@ -229,7 +238,7 @@ class truefalse_exporter extends qformat_exporter {
 		$text = get_string('false', 'qtype_truefalse');
 		$choicelabel = $html_parser->parse_to_text($text);
 		$choice_false->choicelabel = $choicelabel;
-		$choice_false->true = $this->mquestion->options->trueanswer == '292' ? false : true;
+		$choice_false->true = $correct == 1 ? false : true;
 		$question->add_choice($choice_false);
 
 		// Add generators.
@@ -244,7 +253,7 @@ class truefalse_exporter extends qformat_exporter {
 /**
  * Class for exporting a multiple-choice question.
  */
-class multichoice_exporter extends qformat_exporter {
+class multichoice_exporter extends qtype_exporter {
 
 	public function __construct($question) {
 		$this->mquestion = $question;
@@ -324,6 +333,7 @@ class multichoice_exporter extends qformat_exporter {
 		$question->labelstyle = "upper-alpha";
 		$question->questionformat = "choice";
 		$question->choicelabelstyle = "upper-alpha";
+		$question->likert = "false";
 
 		// Set questionanswers.
 		$answers = $this->mquestion->options->answers;
@@ -360,7 +370,7 @@ class multichoice_exporter extends qformat_exporter {
 /**
  * Class for exporting a matching question.
  */
-class matching_exporter extends qformat_exporter {
+class matching_exporter extends qtype_exporter {
 
 	public function __construct($question) {
 		$this->mquestion = $question;
@@ -389,6 +399,7 @@ class matching_exporter extends qformat_exporter {
 		$question->labelstyle = "upper-alpha";
 		$question->questionformat = "choice";
 		$question->choicelabelstyle = "upper-alpha";
+		$question->likert = "false";
 
 		// Add subquestiontext to questiontext.
 		$parser = parser_factory::get_parser($subquestion->questiontextformat);
@@ -429,7 +440,7 @@ class matching_exporter extends qformat_exporter {
 /**
  * Class for exporting a numerical-question.
  */
-class numerical_exporter extends qformat_exporter {
+class numerical_exporter extends qtype_exporter {
 
 	public function __construct($question) {
 		$this->mquestion = $question;
@@ -472,7 +483,7 @@ class numerical_exporter extends qformat_exporter {
 /**
  * Class for exporting a numerical-question.
  */
-class shortanswer_exporter extends qformat_exporter {
+class shortanswer_exporter extends qtype_exporter {
 
 	public function __construct($question) {
 		$this->mquestion = $question;
@@ -489,13 +500,15 @@ class shortanswer_exporter extends qformat_exporter {
 		$correct = "";
 		$count = 0;
 		foreach($manswers as $manswer) {
-			//$correct .= $manswer->answer . "\r\n";
-			$correct .= $manswer->answer . "\n";
-			if(++$count >= 4) {
-				break;
-			}
+		    if($manswer->fraction > 0) {
+    			//$correct .= $manswer->answer . "\r\n";
+    			$correct .= $manswer->answer . "\n";
+    			if(++$count >= 4) {
+    				break;
+    			}
+		    }
 		}
-		$correct = substr($correct, 0, strlen($correct) - 1);  // Delete last linebreak.
+		$correct = trim($correct);
 		$question->correct = $correct;
 
 		// Set question data.

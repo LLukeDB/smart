@@ -23,18 +23,20 @@ class parser_factory {
 				return new html_parser();
 			case 'svgtext':
 				return new svgtext_parser();
-			case '1':
+			case FORMAT_HTML :
 				return new html_parser();
-			case '0':
+			case FORMAT_MOODLE:
 				return new html_parser();
+			case FORMAT_PLAIN :
+			    return new html_parser();
 			default:
-				$text_format = $this->trans_format($type);
+				$text_format = self::trans_format($type);
 				print_error('noparserfound', 'qformat_smart', null, $text_format);
 				return false;
 		}	
 	}
 	
-	public function trans_format($name) {
+	public static function trans_format($name) {
 		$name = trim($name);
 	
 		if ($name == FORMAT_MOODLE) {

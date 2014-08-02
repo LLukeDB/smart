@@ -180,25 +180,25 @@ class qformat_smart extends qformat_default {
 	
 			$question->id = $DB->insert_record('question', $question);
 	
-					if (isset($question->questiontextitemid)) {
-							$question->questiontext = file_save_draft_area_files($question->questiontextitemid,
-							$this->importcontext->id, 'question', 'questiontext', $question->id,
-				$fileoptions, $question->questiontext);
-							} else if (isset($question->questiontextfiles)) {
-							foreach ($question->questiontextfiles as $file) {
-									question_bank::get_qtype($question->qtype)->import_file(
-									$this->importcontext, 'question', 'questiontext', $question->id, $file);
-		}
+			if (isset($question->questiontextitemid)) {
+					$question->questiontext = file_save_draft_area_files($question->questiontextitemid,
+					$this->importcontext->id, 'question', 'questiontext', $question->id,
+					                                $fileoptions, $question->questiontext);
+					} else if (isset($question->questiontextfiles)) {
+					foreach ($question->questiontextfiles as $file) {
+							question_bank::get_qtype($question->qtype)->import_file(
+							$this->importcontext, 'question', 'questiontext', $question->id, $file);
+			}
 		}
 			if (isset($question->generalfeedbackitemid)) {
 			$question->generalfeedback = file_save_draft_area_files($question->generalfeedbackitemid,
 			$this->importcontext->id, 'question', 'generalfeedback', $question->id,
 			$fileoptions, $question->generalfeedback);
 	} else if (isset($question->generalfeedbackfiles)) {
-	foreach ($question->generalfeedbackfiles as $file) {
-	question_bank::get_qtype($question->qtype)->import_file(
-			$this->importcontext, 'question', 'generalfeedback', $question->id, $file);
-	}
+    	foreach ($question->generalfeedbackfiles as $file) {
+    	    question_bank::get_qtype($question->qtype)->import_file(
+    		$this->importcontext, 'question', 'generalfeedback', $question->id, $file);
+    	}
 	}
 			$DB->update_record('question', $question);
 	
@@ -279,132 +279,16 @@ class qformat_smart extends qformat_default {
 			$questions = $this->questions;
 		}
 		
-		// $count = 0;
-		
-		// // results are first written into string (and then to a file)
-		// // so create/initialize the string here
-		// $expout = "";
-		
-		// // track which category questions are in
-		// // if it changes we will record the category change in the output
-		// // file if selected. 0 means that it will get printed before the 1st question
-		// $trackcategory = 0;
-		
-		// // iterate through questions
-		// foreach ( $questions as $question ) {
-		// // used by file api
-		// $contextid = $DB->get_field ( 'question_categories', 'contextid', array (
-		// 'id' => $question->category
-		// ) );
-		// $question->contextid = $contextid;
-		
-		// // do not export hidden questions
-		// if (! empty ( $question->hidden )) {
-		// continue;
-		// }
-		
-		// // do not export random questions
-		// if ($question->qtype == 'random') {	
-		// continue;
-		// }
-		
-		// // check if we need to record category change
-		// if ($this->cattofile) {
-		// if ($question->category != $trackcategory) {
-		// $trackcategory = $question->category;
-		// $categoryname = $this->get_category_path ( $trackcategory, $this->contexttofile );
-		
-		// // create 'dummy' question for category export
-		// $dummyquestion = new stdClass ();
-		// $dummyquestion->qtype = 'category';
-		// $dummyquestion->category = $categoryname;
-		// $dummyquestion->name = 'Switch category to ' . $categoryname;
-		// $dummyquestion->id = 0;
-		// $dummyquestion->questiontextformat = '';
-		// $dummyquestion->contextid = 0;
-		// $expout .= $this->writequestion ( $dummyquestion ) . "\n";
-		// }
-		// }
-		
-		// // export the question displaying message
-		// $count ++;
-		
-		// if (question_has_capability_on ( $question, 'view', $question->category )) {
-		// $expout .= $this->writequestion ( $question, $contextid ) . "\n";
-		// }
-		
-		// }
-		
-		// // continue path for following error checks
-		// $course = $this->course;
-		// $continuepath = "$CFG->wwwroot/question/export.php?courseid=$course->id";
-		
-		// // did we actually process anything
-		// if ($count == 0) {
-		// print_error ( 'noquestions', 'question', $continuepath );
-		// }
-		
-		// // final pre-process on exported data
-		// $expout = $this->presave_process ( $expout );
-		
-		// Check if the necessary extensions are loaded.
+		// Check if the neccessary extensions are loaded.
 		if(!extension_loaded('imagick')) {
 			$error_msg_params = "Imagick";
 			print_error('missingextension', 'qformat_smart', $this->get_continue_path(), $error_msg_params);
 		}
 		
-		$exporter_factory = new qformat_exporter_factory();
+		// Export the questions.
+		$filecontent = $this->export_questions($questions);
 		
-		$exporters = array();
-		$unsupported_questions = array();
-		
-		foreach($questions as $question) {
-			$exporter = $exporter_factory->get_exporter($question);
-				
-			if(!$exporter) {
-				array_push($unsupported_questions, $question);
-			}
-			else {
-				array_push($exporters, $exporter);
-			}
-		}
-		
-		// Create error message if there are unsuported questions.
-		if(count($unsupported_questions) > 0) {
-			// Create string list with unsupported questions.
-			$error_msg_params = "";
-			foreach($unsupported_questions as $question) {
-				$error_msg_params .= " - " . $question->name . " [" . get_string($question->qtype, 'quiz') . "]<br/>";
-			}
-			
-			print_error('unsupportedquestiontype', 'qformat_smart', $this->get_continue_path(), $error_msg_params);
-		}
-		
-		// Export all questions.
-		$export_data = new export_data();
-		foreach ( $exporters as $exporter ) {
-			$exporter->export($export_data);				
-		}
-		
-		// Export logged errors.
-		$log = error_logger::get_instance()->get_error_log();
-		if(count($log) > 0) {
-			$dummy_question=new stdClass();
-			$dummy_question->qtype='log';
-			$exporter = $exporter_factory->get_exporter($dummy_question);
-			$exporter->export($export_data);
-		}
-		
-		// Create zip-file from export_data.
-		$zip_file = $export_data->toZIP();
-
-		// Return the zip file.
-		$filehandle = fopen($zip_file, "r");
-		$filecontent = fread($filehandle, filesize($zip_file));
-		fclose($filehandle);
-		//unlink($zip_file);
-		
-		//return $filecontent;
+		// Start the download of the export file.
 		$this->start_download($filecontent);
 	}
 	
@@ -412,6 +296,61 @@ class qformat_smart extends qformat_default {
 		$course = $this->course;
 		$continuepath = "$CFG->wwwroot/question/export.php?courseid=$course->id";
 		return $continuepath;
+	}
+	
+	public function export_questions($questions) {
+	    $exporter_factory = new qtype_exporter_factory();
+	    
+	    $exporters = array();
+	    $unsupported_questions = array();
+	    
+	    foreach($questions as $question) {
+	        $exporter = $exporter_factory->get_exporter($question);
+	    
+	        if(!$exporter) {
+	            array_push($unsupported_questions, $question);
+	        }
+	        else {
+	            array_push($exporters, $exporter);
+	        }
+	    }
+	    
+	    // Create error message if there are unsuported questions.
+	    if(count($unsupported_questions) > 0) {
+	        // Create string list with unsupported questions.
+	        $error_msg_params = "";
+	        foreach($unsupported_questions as $question) {
+	            $error_msg_params .= " - " . $question->name . " [" . get_string($question->qtype, 'quiz') . "]<br/>";
+	        }
+	        	
+	        print_error('unsupportedquestiontype', 'qformat_smart', $this->get_continue_path(), $error_msg_params);
+	    }
+	    
+	    // Export all questions.
+	    $export_data = new export_data();
+	    foreach ( $exporters as $exporter ) {
+	        $exporter->export($export_data);
+	    }
+	    
+	    // Export logged errors.
+	    $log = error_logger::get_instance()->get_error_log();
+	    if(count($log) > 0) {
+	        $dummy_question=new stdClass();
+	        $dummy_question->qtype='log';
+	        $exporter = $exporter_factory->get_exporter($dummy_question);
+	        $exporter->export($export_data);
+	    }
+	    
+	    // Create zip-file from export_data.
+	    $zip_file = $export_data->toZIP();
+	    
+	    // Return the zip file.
+	    $filehandle = fopen($zip_file, "r");
+	    $filecontent = fread($filehandle, filesize($zip_file));
+	    fclose($filehandle);
+	    unlink($zip_file);
+	    
+	    return $filecontent;
 	}
 	
 	/**

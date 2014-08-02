@@ -41,7 +41,7 @@ class page_generator extends file_generator {
 		$filename = $dir . $this->question->page_name;
 		$string = $this->xml->asXML();
 		if($this->question->format == "short-answer") {
-			$string = str_replace("&#10;", "\n", $string);  // Replace escpae sequence for linebreak with real linebreak. Needed for shortanswer questions.
+			$string = str_replace('&#10;', "\r\n", $string);  // Replace escape sequence for linebreak with real linebreak. Needed for shortanswer questions.
 		}
 		return file_put_contents($filename, $string);
 		//return save_simplexml($this->xml, $filename);
@@ -83,19 +83,19 @@ class page_generator extends file_generator {
 	private function generate_choicequestion_page() {
 		$this->generate_question();
 		foreach($this->question->choices as $choice) {
-			$this->ypos += 20; // Add margin.
+			//$this->ypos += 20; // Add margin.
 			$this->generate_choice($choice);
 		}
 	}
 	
 	private function generate_shortanswer_page() {
 		$this->generate_question();
-		$this->generate_input_answer_element('shortanswer');
+		$this->generate_answer_input_element('shortanswer');
 	}
 	
 	private function generate_numeric_page() {
 		$this->generate_question();
-		$this->generate_input_answer_element('shortanswernumeric');
+		$this->generate_answer_input_element('shortanswernumeric');
 	}
 
 	private function init() {
@@ -140,7 +140,7 @@ class page_generator extends file_generator {
 		$questiontext->addAttribute("tags", "");
 		$questiontext->addAttribute("explanation", $this->question->explanation);
 		$questiontext->addAttribute("mathgradingoption", "");
-		$questiontext->addAttribute("likert", "");
+		$questiontext->addAttribute("likert", $this->question->likert);
 		
 		// Write 1st text-element.
 		$text = $this->html_parser->parse_to_text($this->question->question_num);
@@ -269,6 +269,9 @@ class page_generator extends file_generator {
 		
 		// Create tspan-element for line.
 		$line_tspan = $parent->addChild("tspan");
+		$line_tspan->addAttribute("justification", "left");
+		$line_tspan->addAttribute("line-spacing", "1.00");
+		$line_tspan->addAttribute("prepara-spacing", "1.00");
 		
 		// Generate all textfragments.
 		$rel_xpos = 0;
@@ -283,7 +286,7 @@ class page_generator extends file_generator {
 			$rel_xpos += $textfragment->get_metrics()->width;
 		}
 		
-		$geometry->rel_ypos += $line_metrics->height;
+		$geometry->rel_ypos += $line_metrics->height + $line_metrics->leading;
 		return $geometry;
 	}
 	
@@ -411,7 +414,7 @@ class page_generator extends file_generator {
 		$path->addAttribute("visible", "1");
 	}
 	
-	private function generate_input_answer_element($class) {
+	private function generate_answer_input_element($class) {
 		$ypos = $this->ypos + 10;
 		$foreground = $this->xml->g;
 		

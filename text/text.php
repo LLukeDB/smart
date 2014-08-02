@@ -328,7 +328,7 @@ class paragraph {
 	    $heigth = 0;
 	    foreach ($lines as $line) {
 	        $lmetrics = $line->get_metrics();
-	        $pmetrics->height += $lmetrics->height;
+	        $pmetrics->height += $lmetrics->height + $lmetrics->leading;
 	        if($lmetrics->width > $pmetrics->width) {
 	            $pmetrics->width = $lmetrics->width;
 	        }
@@ -403,6 +403,16 @@ class line {
 			}
 		}
 		$metrics->height = $height;
+		
+		// Calculate the leading.
+		$leading = 0;
+		foreach($this->textfragments as $textfragment) {
+		    $tfleading = $textfragment->get_metrics()->leading;
+		    if($tfleading > $leading) {
+		        $leading = $tfleading;
+		    }
+		}
+		$metrics->leading = $leading;
 		
 		$this->metrics = $metrics;
 	}
@@ -498,6 +508,7 @@ class textfragment {
 		$metrics->baseline = $baseline = $imagic_metrics['boundingBox']['y2'];
 		$metrics->width = $imagic_metrics['textWidth'];
 		$metrics->height = $imagic_metrics['textHeight'];
+		$metrics->leading = $imagic_metrics['maxHorizontalAdvance'] - $imagic_metrics['textHeight'];
 		
 		$this->metrics = $metrics;
 	}
@@ -572,4 +583,5 @@ class metrics {
 	public $baseline = null;
 	public $width = null;
 	public $height = null;
+	public $leading = null;
 }
