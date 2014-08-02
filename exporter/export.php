@@ -159,13 +159,11 @@ class log_exporter extends qtype_exporter {
 		
 		// Create dummy question with text.
 		$page_num = $export_data->get_pagecount();
-
-		$question = new question($page_num);
+		$question = new no_question($page_num);
 		$question->question_num = $page_num + 1;
 		
 		// Set question data.
 		$question->questiontext = $text;
-		$question->format = "noquestion";
 		
 		$export_data->add_question($question);
 	}
@@ -201,7 +199,7 @@ class truefalse_exporter extends qtype_exporter {
 	public function export($export_data) {
 		$page_num = $export_data->get_pagecount();
 
-		$question = new question($page_num);
+		$question = new truefalse_question($page_num);
 		$question->question_num = $page_num + 1;
 		
 		// Get trueanswer.
@@ -215,12 +213,7 @@ class truefalse_exporter extends qtype_exporter {
 
 		// Set question data.
 		$this->set_common_question_data($question);
-		$question->format = "trueorfalse";
-		$question->labelstyle = "true/false";
 		$question->correct = $correct;
-
-		$question->questionformat = "choice";
-		$question->choicelabelstyle = "true-false";
 
 		// Get text parser.
 		$html_parser = new html_parser();
@@ -270,7 +263,7 @@ class multichoice_exporter extends qtype_exporter {
 			}
 		}
 
-		// Exported questiontype depends on the amount of true answers.
+		// Exported question type depends on the amount of true answers.
 		if($true_answers_num > 1) {
 			$this->export_selection_question($export_data);
 		}
@@ -282,15 +275,11 @@ class multichoice_exporter extends qtype_exporter {
 
 	private function export_selection_question($export_data) {
 		$page_num = $export_data->get_pagecount();
-		$question = new question($page_num);
+		$question = new selection_question($page_num);
 		$question->question_num = $page_num + 1;
 
 		// Set question data.
 		$this->set_common_question_data($question);
-		$question->format = "selection";
-		$question->labelstyle = "upper-alpha";
-		$question->questionformat = "selection";
-		$question->choicelabelstyle = "upper-alpha";
 
 		// Set questionanswers.
 		$answers = $this->mquestion->options->answers;
@@ -320,16 +309,11 @@ class multichoice_exporter extends qtype_exporter {
 
 	private function export_choice_question($export_data) {
 		$page_num = $export_data->get_pagecount();
-		$question = new question($page_num);
+		$question = new choice_question($page_num);
 		$question->question_num = $page_num + 1;
 
 		// Set question data.
 		$this->set_common_question_data($question);
-		$question->format = "choice";
-		$question->labelstyle = "upper-alpha";
-		$question->questionformat = "choice";
-		$question->choicelabelstyle = "upper-alpha";
-		$question->likert = "false";
 
 		// Set questionanswers.
 		$answers = $this->mquestion->options->answers;
@@ -382,16 +366,10 @@ class matching_exporter extends qtype_exporter {
 
 	private function generate_multichoice_question($subquestion, $export_data) {
 		$page_num = $export_data->get_pagecount();
-		$question = new question($page_num);
+		$question = new choice_question($page_num);
 		$question->question_num = $page_num + 1;
 
-		// Set question data.
 		$this->set_common_question_data($question);
-		$question->format = "choice";
-		$question->labelstyle = "upper-alpha";
-		$question->questionformat = "choice";
-		$question->choicelabelstyle = "upper-alpha";
-		$question->likert = "false";
 
 		// Add subquestiontext to questiontext.
 		$parser = parser_factory::get_parser($subquestion->questiontextformat);
@@ -437,7 +415,7 @@ class numerical_exporter extends qtype_exporter {
 	public function export($export_data) {
 		$page_num = $export_data->get_pagecount();
 
-		$question = new question($page_num);
+		$question = new numeric_question($page_num);
 		$question->question_num = $page_num + 1;
 
 		// Get the first answer.
@@ -449,12 +427,7 @@ class numerical_exporter extends qtype_exporter {
 
 		// Set question data.
 		$this->set_common_question_data($question);
-		$question->format = "numeric";
-		$question->labelstyle = "";
 		$question->correct = $answer;
-
-		$question->questionformat = "decimal";
-		$question->choicelabelstyle = "";
 
 		$question->maximumvalue = $answer;
 		$question->minimumvalue = $answer;
@@ -476,7 +449,7 @@ class shortanswer_exporter extends qtype_exporter {
 	public function export($export_data) {
 		$page_num = $export_data->get_pagecount();
 
-		$question = new question($page_num);
+		$question = new shortanswer_question($page_num);
 		$question->question_num = $page_num + 1;
 
 		// Set answers (max 4).
@@ -497,11 +470,6 @@ class shortanswer_exporter extends qtype_exporter {
 
 		// Set question data.
 		$this->set_common_question_data($question);
-		$question->format = "short-answer";
-		$question->labelstyle = "";
-
-		$question->questionformat = "short-answer";
-		$question->choicelabelstyle = "";
 		$question->exactmatches = $correct;
 
 		$export_data->add_question($question);

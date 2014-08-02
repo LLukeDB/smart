@@ -42,13 +42,6 @@ class question {
 	
 	public $choices;
 	
-	// Attributes for numerical questions.
-	public $maximumvalue;
-	public $minimumvalue;
-	
-	// Attributes for short-answer questions.
-	public $exactmatches;
-	
 	public function __construct($page_num) {
 		$this->choices = array();
 		$this->question_id = id_generator::get_instance()->generate_id();
@@ -92,4 +85,56 @@ class choice {
 		$this->choicetext = text::get_empty_text();
 	}
 	
+}
+
+class no_question extends question {
+    public $format = "noquestion";
+        
+}
+
+class truefalse_question extends question {
+    public $format = "trueorfalse";
+    public $labelstyle = "true/false";
+    public $questionformat = "choice";
+    public $choicelabelstyle = "true-false";
+    
+}
+
+class selection_question extends question {
+    public $format = "selection";
+    public $labelstyle = "upper-alpha";
+    public $questionformat = "selection";
+    public $choicelabelstyle = "upper-alpha";
+    
+}
+
+class choice_question extends question {
+    public $format = "choice";
+    public $labelstyle = "upper-alpha";
+    public $questionformat = "choice";
+    public $choicelabelstyle = "upper-alpha";
+    public $likert = "false";
+    
+}
+
+class numeric_question extends question {
+    public $format = "numeric";
+    public $labelstyle = "";
+    public $questionformat = "decimal";
+    public $choicelabelstyle = "";
+    
+    // Attributes specific for numeric questions.
+    public $maximumvalue;
+    public $minimumvalue;
+    
+}
+
+class shortanswer_question extends question {
+     public $format = "short-answer";
+     public $labelstyle = "";
+     public $questionformat = "short-answer";
+     public $choicelabelstyle = "";
+     
+     // Attribute specific for shortanswer questions.
+     public $exactmatches;
 }
