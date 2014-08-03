@@ -28,3 +28,19 @@ $string['noparserfound'] = 'A parser for the textformat "{$a}" could not be foun
 $string['pluginname'] = 'SMART Notebook Format';
 $string['pluginname_help'] = 'Plugin for exporting questions in the SMART notebook format.';
 $string['pluginname_link'] = 'qformat/smart';
+
+$string['formatting_error'] = 'Question {$a->questionnum} "{$a->questiontitle}": {$a->formatting}';
+$string['formatting_log_heading'] = '<p>The following formattings have been omitted during the conversion:</p>';
+
+$string['a'] = 'hyperlink';
+$string['table'] = 'table';
+$string['pre'] = 'preformatted text';
+$string['address'] = 'address';
+$string['h1'] = 'heading';
+$string['h2'] = 'heading';
+$string['h3'] = 'heading';
+$string['h4'] = 'heading';
+$string['h5'] = 'heading';
+$string['h6'] = 'heading';
+$string['sub'] = 'subscript text';
+$string['sup'] = 'superscript text';

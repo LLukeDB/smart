@@ -125,7 +125,7 @@ abstract class qtype_exporter {
 	
 		// Set questiontext.
 		$parser = parser_factory::get_parser($this->mquestion->questiontextformat);
-		$questiontext = $parser->parse_to_text($this->mquestion->questiontext, $this->mquestion);
+		$questiontext = $parser->parse_to_text($this->mquestion->questiontext, $this->mquestion, $question->question_num);
 		$question->questiontext = $questiontext;
 		
 		// Set explanation.
@@ -158,7 +158,7 @@ class log_exporter extends qtype_exporter {
 		$log = $logger->get_error_log();
 		
 		// Create text from log entries.
-		$html_text = "";
+		$html_text = get_string('formatting_log_heading', "qformat_smart");
 		foreach ($log as $logentry) {
 			$html_text .= '<p><span style="font-size: small;">' . $logentry . '</span></p>';
 		}
@@ -295,7 +295,7 @@ class multichoice_exporter extends qtype_exporter {
 			$choice->label = $position;
 			$choice->format = "selection";
 			$parser = parser_factory::get_parser($answer->answerformat);
-			$choicetext = $parser->parse_to_text($answer->answer, $this->mquestion);
+			$choicetext = $parser->parse_to_text($answer->answer, $this->mquestion, $question->question_num, $question->question_num);
 			$choice->choicetext = $choicetext;
 			$choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
 			if($answer->fraction > 0.0) {
@@ -327,7 +327,7 @@ class multichoice_exporter extends qtype_exporter {
 			$choice->label = $position;
 			$choice->format = "choice";
 			$parser = parser_factory::get_parser($answer->answerformat);
-			$choicetext = $parser->parse_to_text($answer->answer, $this->mquestion);
+			$choicetext = $parser->parse_to_text($answer->answer, $this->mquestion, $question->question_num);
 			$choice->choicetext = $choicetext;
 			$choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
 			if($answer->fraction > 0.0) {
@@ -373,7 +373,7 @@ class matching_exporter extends qtype_exporter {
 
 		// Add subquestiontext to questiontext.
 		$parser = parser_factory::get_parser($subquestion->questiontextformat);
-		$subquestiontext = $parser->parse_to_text($subquestion->questiontext, $this->mquestion);
+		$subquestiontext = $parser->parse_to_text($subquestion->questiontext, $this->mquestion, $question->question_num);
 		$question->questiontext->append_text($subquestiontext);
 
 		// Set questionanswers.
@@ -386,7 +386,7 @@ class matching_exporter extends qtype_exporter {
 			$choice->label = $position;
 			$choice->format = "choice";
 			$parser = new html_parser();
-			$choice->choicetext = $parser->parse_to_text($subq->answertext, $this->mquestion);
+			$choice->choicetext = $parser->parse_to_text($subq->answertext, $this->mquestion, $question->question_num);
 			$choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
 			if($subq->id == $subquestion->id) {
 				$choice->true = true;

@@ -303,42 +303,6 @@ class page_generator extends file_generator {
 		}
 	}
 	
-	private function getTSpanGeometry($tspan) {
-		$svg = new SimpleXMLElement("<svg></svg>");
-		$svg->addAttribute("width", 1000);
-		$svg->addAttribute("height", 1400);
-		$text_elem = $svg->addChild("text", "");
-		$text_elem->addAttribute("transform", "translate(0, 500)");
-		simplexml_append_child($tspan, $text_elem);
-	
-		$im = new Imagick();
-		$im->readimageblob($svg->asXML());
-		$im->setImageFormat("png");
-		$im->trimimage(0);
-	
-		$geometry = $im->getImageGeometry();
-		$im->clear();
-		$im->destroy();
-		return $geometry;
-	}
-	
-	private function getTextGeometry($text) {
-		$svg = new SimpleXMLElement("<svg></svg>");
-		$svg->addAttribute("width", 1000);
-		$svg->addAttribute("height", 1400);
-		simplexml_append_child($text, $svg);
-	
-		$im = new Imagick();
-		$im->readimageblob($svg->asXML());
-		$im->setImageFormat("png");
-		$im->trimimage(0);
-	
-		$geometry = $im->getImageGeometry();
-		$im->clear();
-		$im->destroy();
-		return $geometry;
-	}
-	
 	private function generate_radiobutton($parent, $y) {
 		$g = $parent->addChild("g");
 		$g->addAttribute("class", "group");

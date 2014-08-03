@@ -19,7 +19,8 @@ $string['missingextension'] = 'Folgende für die korrekte Funktion notwendige PH
 $string['filenotreadable'] = 'Die Datei konnte nicht gelesen werden!';
 $string['filenotvalid'] = 'Die Datei ist keine valide .notebook-Datei!';
 $string['shortanswer_input'] = 'Schüler geben hier ihre Antworten ein';
-$string['formatting_error'] = 'Formatierung "{$a->formatting}" in Frage "{$a->questiontitle}" wurde weggelassen.';
+$string['formatting_error'] = 'Frage {$a->questionnum} "{$a->questiontitle}": {$a->formatting}';
+$string['formatting_log_heading'] = '<p>Nachfolgende Formatierungen wurden bei der Konvertierung weggelassen:</p>';
 $string['packingfailed'] = 'Dateiarchiv konnte nicht erstellt werden!';
 $string['savingfailed'] = 'Die Datei "{$a}" konnte nicht gespeichert werden!';
 $string['loadingfailed'] = 'Die Datei "{$a}" konnte nicht geladen werden!';
@@ -28,4 +29,17 @@ $string['noparserfound'] = 'Es konnt kein Parser für das Textformat "{$a}" gefu
 $string['pluginname'] = 'SMART Notebook Format';
 $string['pluginname_help'] = 'Plugin zum Exportieren von Fragen im SMART-Notebook-Format';
 $string['pluginname_link'] = 'qformat/smart';
+
+$string['a'] = 'Hyperlink';
+$string['table'] = 'Tabelle';
+$string['pre'] = 'vorformattierter Text';
+$string['address'] = 'Adresse';
+$string['h1'] = 'Überschrift';
+$string['h2'] = 'Überschrift';
+$string['h3'] = 'Überschrift';
+$string['h4'] = 'Überschrift';
+$string['h5'] = 'Überschrift';
+$string['h6'] = 'Überschrift';
+$string['sub'] = 'tiefgestellter Text';
+$string['sup'] = 'hochgestellter Text';
 

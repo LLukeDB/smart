@@ -17,9 +17,6 @@
 // $Id: $
 
 /**
- * Code fragment to define the version of smart-plugin for Moodle 2.0
- * This fragment is called by moodle_needs_upgrading() and /admin/index.php
- *
  * @package qformat_smart
  * @copyright 2014 Lukas Baumann
  * @author Lukas Baumann

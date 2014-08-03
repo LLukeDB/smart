@@ -33,6 +33,7 @@ private $formattings;
 private $xml_parser;
 private $text;
 private $question;
+private $questionnum;
 
 private function init_parser() {
 	$this->formattings = array();
@@ -65,9 +66,10 @@ public static function get_defalt_formattings() {
  * @param $text text in html-format, which should be parsed
  * 		  $question moodle question-object - needed for error logging
  */
-public function parse_to_text($text, $question=null) {
+public function parse_to_text($text, $question=null, $questionnum=null) {
 	$this->init_parser();
 	$this->question = $question;
+	$this->questionnum = $questionnum;
 	
 	// Prepare text.
 	$text = str_replace("\n", "", $text);
@@ -303,8 +305,9 @@ private function log_error($formatting) {
 	if($this->question != null) {
 		// Create object for string params.
 		$a = new stdClass();
-		$a->formatting = $formatting;
+		$a->formatting = get_string($formatting, 'qformat_smart');
 		$a->questiontitle = $this->question->name;
+		$a->questionnum = $this->questionnum;
 		
 		$error_msg = '<p><span font-size="small">- ' . get_string('formatting_error', 'qformat_smart', $a) . '</span></p>';
 		
