@@ -1171,5 +1171,69 @@ class qformat_smart_test extends question_testcase {
         
         
     }
+    
+    /*
+     * Test export of a shortanswer-question.
+    */
+    public function test_export_formattings() {
+        $qdata = new stdClass();
+        $qdata->id = 123;
+        $qdata->contextid = 0;
+        $qdata->qtype = 'shortanswer';
+        $qdata->name = 'Short answer question';
+        $qdata->questiontext = "<p>This is some text <a href=\"test\">link</a></p>";
+        $qdata->questiontextformat = FORMAT_HTML;
+        $qdata->generalfeedback = 'The answer is Beta.';
+        $qdata->generalfeedbackformat = FORMAT_HTML;
+        $qdata->defaultmark = 1;
+        $qdata->length = 1;
+        $qdata->penalty = 0.3333333;
+        $qdata->hidden = 0;
+    
+        $qdata->options = new stdClass();
+        $qdata->options->usecase = 0;
+    
+        $qdata->options->answers = array(
+                13 => new question_answer(13, 'Beta', 1, 'Well done!', FORMAT_HTML),
+                14 => new question_answer(14, '*', 0, 'Doh!', FORMAT_HTML),
+        );
+    
+        // Export the question.
+        $exporter = new qformat_smart();
+        $questions = array($qdata);
+        $zipcontent = $exporter->export_questions($questions);
+    
+        // Open exported question as import_data.
+        $import_data = $this->zip_to_import_data($zipcontent);
+    
+        /*
+         * Test content of pages.
+        */
+    
+        // Test number of pages.
+        $this->assertCount(2, $import_data->pages);
+    
+        $page = $import_data->pages[1];
+        $questions = $page->xpath('//g[@class="question"]');
+        $this->assertCount(1, $questions);
+        $question = $questions[0];
+        
+        // Test the question text without formattings.
+        $expectedquestiontext = 'This is some text link';
+        $questiontext = strip_tags($question->text[1]->asXML());
+        $this->assertEquals($expectedquestiontext, $questiontext);
+        
+        $page = $import_data->pages[0];
+        $infotexts = $page->xpath('//text');
+        // Test that text element is present
+        $this->assertCount(1, $infotexts);
+        $infotext = $infotexts[0];
+        
+        // Tests if text is not empty
+        $expectedinfotext = '';
+        $infotext = strip_tags($infotext->asXML());
+        $this->assertNotEquals($expectedinfotext, $questiontext);
+    
+    }
 
 }
