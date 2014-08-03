@@ -174,8 +174,10 @@ class log_exporter extends qtype_exporter {
 		
 	}
 	
-	/*
+	/**
 	 * Helper function, which exports the log to a file for debugging.
+	 * 
+	 *  @codeCoverageIgnore
 	 */
 	private function export_to_file() {
 		$path = "/opt/lampp/logs/smart_error_log";

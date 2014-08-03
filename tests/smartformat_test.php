@@ -644,6 +644,10 @@ class qformat_smart_test extends question_testcase {
         $qdata->options->answers = array(
                 13 => new question_answer(13, 'Beta', 1, 'Well done!', FORMAT_HTML),
                 14 => new question_answer(14, '*', 0, 'Doh!', FORMAT_HTML),
+                15 => new question_answer(15, 'Gamma', 1, 'Well done!', FORMAT_HTML),
+                16 => new question_answer(16, 'Delta', 1, 'Doh!', FORMAT_HTML),
+                17 => new question_answer(17, 'Epsilon', 1, 'Well done!', FORMAT_HTML),
+                18 => new question_answer(18, 'Tetha', 1, 'Doh!', FORMAT_HTML),
         );
     
         $qdata->hints = array(
@@ -688,7 +692,7 @@ class qformat_smart_test extends question_testcase {
     
         // Test the question element.
         $question = $questions[0];
-        $expectedvotemetadata = '<votemetadata><questiontext format="short-answer" labelstyle="" correct="Beta" points="1" tags="" explanation="The answer is Beta." mathgradingoption="" likert=""/></votemetadata>';
+        $expectedvotemetadata = '<votemetadata><questiontext format="short-answer" labelstyle="" correct="Beta Gamma Delta Epsilon" points="1" tags="" explanation="The answer is Beta." mathgradingoption="" likert=""/></votemetadata>';
         $votemetadata = $question->votemetadata->asXML();
         $this->assert_same_xml($expectedvotemetadata, $votemetadata);
     

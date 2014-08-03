@@ -29,6 +29,9 @@ require_once ($CFG->dirroot . '/question/format/smart/helper/idgenerator.php');
 require_once ($CFG->dirroot . '/question/format/smart/exporter/export.php');
 require_once ($CFG->dirroot . '/question/format/smart/text/parse.php');
 
+/**
+ * @codeCoverageIgnore
+ */
 class import_data {
 
 	public $pages;
