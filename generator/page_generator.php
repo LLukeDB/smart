@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package qformat_smart
+ * @copyright 2014 Lukas Baumann
+ * @author Lukas Baumann
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (5)
+ */
+
 require_once($CFG->dirroot . '/question/format/smart/format.php');
 require_once($CFG->dirroot . '/question/format/smart/helper/filetools.php');
 require_once($CFG->dirroot . '/question/format/smart/generator/generator.php');

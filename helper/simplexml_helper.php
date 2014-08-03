@@ -13,6 +13,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package qformat_smart
+ * @copyright 2014 Lukas Baumann
+ * @author Lukas Baumann
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (5)
+ */
+
 function simplexml_insert_after(SimpleXMLElement $insert, SimpleXMLElement $target) {
     $target_dom = dom_import_simplexml($target);
     $insert_dom = $target_dom->ownerDocument->importNode(dom_import_simplexml($insert), true);

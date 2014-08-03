@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Unit tests for the SMART Notebook format.
+ * 
+ * @package qformat_smart
+ * @copyright 2014 Lukas Baumann
+ * @author Lukas Baumann
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (5)
+ */
+
 require_once ($CFG->dirroot . '/question/format/smart/text/text.php');
 require_once ($CFG->dirroot . '/question/format/smart/text/parse.php');
 require_once ($CFG->dirroot . '/question/format/smart/helper/logging.php');

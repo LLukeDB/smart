@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package qformat_smart
+ * @copyright 2014 Lukas Baumann
+ * @author Lukas Baumann
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (5)
+ */
+
 require_once($CFG->dirroot . '/question/format/smart/helper/logging.php');
 require_once($CFG->dirroot . '/question/format/smart/generator/page_generator.php');
 require_once($CFG->dirroot . '/question/format/smart/helper/filetools.php');
@@ -37,6 +44,7 @@ class export_data {
 	}
 	
 	public function add_question($question) {
+	    $question->set_pagenum($this->get_pagecount());
 	    $page_generator = new page_generator($question);
 	    array_push($this->pages, $page_generator);
 	    $this->metadatardf_generator->add_question($question);
@@ -158,14 +166,12 @@ class log_exporter extends qtype_exporter {
 		$text = $html_parser->parse_to_text($html_text);
 		
 		// Create dummy question with text.
-		$page_num = $export_data->get_pagecount();
-		$question = new no_question($page_num);
-		$question->question_num = $page_num + 1;
+		$question = new no_question();
+		$export_data->add_question($question);
 		
 		// Set question data.
 		$question->questiontext = $text;
 		
-		$export_data->add_question($question);
 	}
 	
 	/*
@@ -199,8 +205,8 @@ class truefalse_exporter extends qtype_exporter {
 	public function export($export_data) {
 		$page_num = $export_data->get_pagecount();
 
-		$question = new truefalse_question($page_num);
-		$question->question_num = $page_num + 1;
+		$question = new truefalse_question();
+		$export_data->add_question($question);
 		
 		// Get trueanswer.
 		$correct = 0;
@@ -238,7 +244,6 @@ class truefalse_exporter extends qtype_exporter {
 		$choice_false->true = $correct == 1 ? false : true;
 		$question->add_choice($choice_false);
 
-		$export_data->add_question($question);
 	}
 
 }
@@ -274,10 +279,9 @@ class multichoice_exporter extends qtype_exporter {
 	}
 
 	private function export_selection_question($export_data) {
-		$page_num = $export_data->get_pagecount();
-		$question = new selection_question($page_num);
-		$question->question_num = $page_num + 1;
-
+		$question = new selection_question();
+		$export_data->add_question($question);
+		
 		// Set question data.
 		$this->set_common_question_data($question);
 
@@ -304,14 +308,12 @@ class multichoice_exporter extends qtype_exporter {
 
 		$question->correct = trim($correct);
 
-		$export_data->add_question($question);
 	}
 
 	private function export_choice_question($export_data) {
-		$page_num = $export_data->get_pagecount();
-		$question = new choice_question($page_num);
-		$question->question_num = $page_num + 1;
-
+		$question = new choice_question();
+		$export_data->add_question($question);
+		
 		// Set question data.
 		$this->set_common_question_data($question);
 
@@ -337,8 +339,7 @@ class multichoice_exporter extends qtype_exporter {
 		}
 
 		$question->correct = trim($correct);
-
-		$export_data->add_question($question);
+		
 	}
 
 }
@@ -365,9 +366,8 @@ class matching_exporter extends qtype_exporter {
 	}
 
 	private function generate_multichoice_question($subquestion, $export_data) {
-		$page_num = $export_data->get_pagecount();
-		$question = new choice_question($page_num);
-		$question->question_num = $page_num + 1;
+		$question = new choice_question();
+		$export_data->add_question($question);
 
 		$this->set_common_question_data($question);
 
@@ -398,8 +398,6 @@ class matching_exporter extends qtype_exporter {
 
 		$question->correct = trim($correct);
 
-		$export_data->add_question($question);
-
 	}
 }
 
@@ -413,11 +411,10 @@ class numerical_exporter extends qtype_exporter {
 	}
 
 	public function export($export_data) {
-		$page_num = $export_data->get_pagecount();
 
-		$question = new numeric_question($page_num);
-		$question->question_num = $page_num + 1;
-
+		$question = new numeric_question();
+		$export_data->add_question($question);
+		
 		// Get the first answer.
 		$answer = "";
 		foreach ($this->mquestion->options->answers as $manswer) {
@@ -432,7 +429,6 @@ class numerical_exporter extends qtype_exporter {
 		$question->maximumvalue = $answer;
 		$question->minimumvalue = $answer;
 
-		$export_data->add_question($question);
 	}
 
 }
@@ -447,11 +443,10 @@ class shortanswer_exporter extends qtype_exporter {
 	}
 
 	public function export($export_data) {
-		$page_num = $export_data->get_pagecount();
 
-		$question = new shortanswer_question($page_num);
-		$question->question_num = $page_num + 1;
-
+		$question = new shortanswer_question();
+		$export_data->add_question($question);
+		
 		// Set answers (max 4).
 		$manswers = $this->mquestion->options->answers;
 		$correct = "";
@@ -472,7 +467,6 @@ class shortanswer_exporter extends qtype_exporter {
 		$this->set_common_question_data($question);
 		$question->exactmatches = $correct;
 
-		$export_data->add_question($question);
 	}
 
 }

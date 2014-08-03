@@ -15,13 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 // $Id: $
+
 /**
  * Code fragment to define the version of smart-plugin for Moodle 2.0
  * This fragment is called by moodle_needs_upgrading() and /admin/index.php
  *
+ * @package qformat_smart
+ * @copyright 2014 Lukas Baumann
  * @author Lukas Baumann
- * @package smart
- **/
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (5)
+ */
 
 $plugin->version  = 2014051801;  		// The current module version (Date: YYYYMMDDXX)
 $plugin->maturity  = MATURITY_STABLE;  	// Maturity level

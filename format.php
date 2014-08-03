@@ -15,14 +15,14 @@
 // along with Moodle. If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Exports questions in the SMART Notebook format.
+ * Exports questions into the SMART Notebook format.
  *
- * @package questionbank
- * @subpackage importexport
+ * @package qformat_smart
  * @copyright 2014 Lukas Baumann
  * @author Lukas Baumann
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (5)
  */
+
 require_once ("$CFG->libdir/xmlize.php");
 require_once ($CFG->dirroot . '/lib/uploadlib.php');
 require_once ($CFG->dirroot . '/question/format/smart/helper/filetools.php');

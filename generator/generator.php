@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package qformat_smart
+ * @copyright 2014 Lukas Baumann
+ * @author Lukas Baumann
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (5)
+ */
+
 require_once($CFG->dirroot . '/question/format/smart/format.php');
 require_once($CFG->dirroot . '/question/format/smart/helper/filetools.php');
 require_once($CFG->dirroot . '/question/format/smart/generator/generator.php');
@@ -21,9 +28,6 @@ require_once($CFG->dirroot . '/question/format/smart/helper/idgenerator.php');
 
 /**
  * Baseclass for all generators.
- * 
- * @author Lukas Baumann
- *
  */
 abstract class file_generator {
 	protected abstract function generate_xml();
@@ -58,7 +62,7 @@ class imsmanifest_generator extends file_generator {
 	}
 
 	public function add_page($question) {
-	    $page_name = "page" . $question->question_num . ".svg";
+	    $page_name = "page" . $question->page_num . ".svg";
 	    
 		$page = $this->xml->resources->resource[0]->addChild("file");
 		$page->addAttribute("href", $page_name);

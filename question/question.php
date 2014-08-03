@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * @package qformat_smart
+ * @copyright 2014 Lukas Baumann
+ * @author Lukas Baumann
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (5)
+ */
+
 require_once ($CFG->dirroot . '/question/format/smart/helper/idgenerator.php');
 require_once ($CFG->dirroot . '/question/format/smart/text/text.php');
 
@@ -42,13 +49,17 @@ class question {
 	
 	public $choices;
 	
-	public function __construct($page_num) {
+	public function __construct() {
 		$this->choices = array();
 		$this->question_id = id_generator::get_instance()->generate_id();
 		$this->page_id = id_generator::get_instance()->generate_id();
 		$this->answer_block_id = id_generator::get_instance()->generate_id();
-		$this->page_num = $page_num;
-		$this->page_name = "page" . $page_num . ".svg";
+	}
+	
+	public function set_pagenum($pagenum) {
+	    $this->page_num = $pagenum;
+	    $this->question_num = $pagenum + 1;
+	    $this->page_name = "page" . $pagenum . ".svg";
 	}
 	
 	public function add_choice($choice) {

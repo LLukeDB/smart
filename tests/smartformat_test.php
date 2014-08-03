@@ -16,9 +16,13 @@
 
 /**
  * Unit tests for the SMART Notebook format.
- *
+ * 
  * @package qformat_smart
+ * @copyright 2014 Lukas Baumann
+ * @author Lukas Baumann
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (5)
  */
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
