@@ -100,13 +100,6 @@ public function parse_to_string($text) {
  */
 private function startElement($parser, $name, $attrs) {
 	switch ($name) {
-		case "text" :
-			// Do nothing.
-			break;
-		case "p" :
-			$this->text->add_paragraph();
-			$this->parse_attributes($attrs);
-			break;
 		case "br" :
 			$this->text->add_paragraph();
 			break;
@@ -121,6 +114,13 @@ private function startElement($parser, $name, $attrs) {
 		case "span" :
 			$this->parse_attributes($attrs);
 			break;
+		case "text" :
+		    // Do nothing.
+		    break;
+		case "p" :
+		    $this->text->add_paragraph();
+		    $this->parse_attributes($attrs);
+		    break;
 		case "li" :
 			$this->text->add_paragraph();
 			break;

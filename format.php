@@ -56,7 +56,6 @@ class qformat_smart extends qformat_default {
 	
 	public function mime_type() {
 		return 'application/x-smarttech-notebook';
-		//return 'multipart/x-zip';
 	}
 	
 	// EXPORT FUNCTIONS START HERE

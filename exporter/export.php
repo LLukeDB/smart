@@ -27,6 +27,7 @@ require_once($CFG->dirroot . '/question/format/smart/helper/filetools.php');
 require_once($CFG->dirroot . '/question/format/smart/question/question.php');
 require_once($CFG->dirroot . '/question/format/smart/helper/idgenerator.php');
 
+
 class export_data {
 
 	private $pages;						// array of page_generators
@@ -75,12 +76,15 @@ class export_data {
 		// Create zip file from temporary directory.
 		$tmpfile = tempnam($moodletmpdir, 'smart_');
 		create_zip($tmpdir, $tmpfile);
-		//recurseRmdir($tmpdir);	// DEBUGGING
+		recurseRmdir($tmpdir);
 
 		return $tmpfile;
 	}
 }
 
+/**
+ * Factory class, which creates exporter objects.
+ */
 class qtype_exporter_factory {
 
 	public static function get_exporter($question) {
@@ -205,46 +209,23 @@ class truefalse_exporter extends qtype_exporter {
 	}
 
 	public function export($export_data) {
-		$page_num = $export_data->get_pagecount();
-
 		$question = new truefalse_question();
 		$export_data->add_question($question);
 		
-		// Get trueanswer.
-		$correct = 0;
-		foreach ($this->mquestion->options->answers as $answer) {
-		    if($answer->answer == $text = get_string('true', 'qtype_truefalse')) {
-		        $correct = $answer->fraction > 0 ? 1 : 2;
+		// Get true answer.
+		$answer = false;
+		foreach ($this->mquestion->options->answers as $manswer) {
+		    if($manswer->answer == get_string('true', 'qtype_truefalse')) {
+		        $answer = $manswer->fraction > 0;
 		        break;
 		    }
 		}
 
 		// Set question data.
 		$this->set_common_question_data($question);
-		$question->correct = $correct;
 
-		// Get text parser.
-		$html_parser = new html_parser();
-
-		// Set questionchoice 'true' data.
-		$choice_true = new choice();
-		$choice_true->choice_id = id_generator::get_instance()->generate_id();
-		$choice_true->label = "1";
-		$text = get_string('true', 'qtype_truefalse');
-		$choicelabel = $html_parser->parse_to_text($text);
-		$choice_true->choicelabel = $choicelabel;
-		$choice_true->true = $correct == 1 ? true : false;
-		$question->add_choice($choice_true);
-
-		// Set questionchoice 'false' data.
-		$choice_false = new choice();
-		$choice_false->choice_id = id_generator::get_instance()->generate_id();
-		$choice_false->label = "2";
-		$text = get_string('false', 'qtype_truefalse');
-		$choicelabel = $html_parser->parse_to_text($text);
-		$choice_false->choicelabel = $choicelabel;
-		$choice_false->true = $correct == 1 ? false : true;
-		$question->add_choice($choice_false);
+		// Set question answer.
+		$question->set_answer($answer);
 
 	}
 
@@ -287,28 +268,17 @@ class multichoice_exporter extends qtype_exporter {
 		// Set question data.
 		$this->set_common_question_data($question);
 
-		// Set questionanswers.
+		// Set question answers.
 		$answers = $this->mquestion->options->answers;
-		$correct = "";
-		$position = 1;
 		foreach ($answers as $answer) {
-			$choice = new choice();
-			$choice->choice_id = id_generator::get_instance()->generate_id();
-			$choice->label = $position;
-			$choice->format = "selection";
 			$parser = parser_factory::get_parser($answer->answerformat);
 			$choicetext = $parser->parse_to_text($answer->answer, $this->mquestion, $question->question_num, $question->question_num);
-			$choice->choicetext = $choicetext;
-			$choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
+			$iscorrect = false;
 			if($answer->fraction > 0.0) {
-				$choice->true = true;
-				$correct .= " " . $position;
+				$iscorrect = true;
 			}
-			$question->add_choice($choice);
-			$position += 1;
+			$question->create_choice($choicetext, $iscorrect);
 		}
-
-		$question->correct = trim($correct);
 
 	}
 
@@ -319,29 +289,18 @@ class multichoice_exporter extends qtype_exporter {
 		// Set question data.
 		$this->set_common_question_data($question);
 
-		// Set questionanswers.
+		// Set question answers.
 		$answers = $this->mquestion->options->answers;
-		$correct = "";
-		$position = 1;
 		foreach ($answers as $answer) {
-			$choice = new choice();
-			$choice->choice_id = id_generator::get_instance()->generate_id();
-			$choice->label = $position;
-			$choice->format = "choice";
 			$parser = parser_factory::get_parser($answer->answerformat);
 			$choicetext = $parser->parse_to_text($answer->answer, $this->mquestion, $question->question_num);
-			$choice->choicetext = $choicetext;
-			$choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
+			$iscorrect = false;
 			if($answer->fraction > 0.0) {
-				$choice->true = true;
-				$correct .= " " . $position;
+				$iscorrect = true;
 			}
-			$question->add_choice($choice);
-			$position += 1;
+			$question->create_choice($choicetext, $iscorrect);
 		}
 
-		$question->correct = trim($correct);
-		
 	}
 
 }
@@ -380,25 +339,15 @@ class matching_exporter extends qtype_exporter {
 
 		// Set questionanswers.
 		$subquestions = $this->mquestion->options->subquestions;
-		$correct = "";
-		$position = 1;
 		foreach ($subquestions as $subq) {
-			$choice = new choice();
-			$choice->choice_id = id_generator::get_instance()->generate_id();
-			$choice->label = $position;
-			$choice->format = "choice";
 			$parser = new html_parser();
-			$choice->choicetext = $parser->parse_to_text($subq->answertext, $this->mquestion, $question->question_num);
-			$choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
+			$choicetext = $parser->parse_to_text($subq->answertext, $this->mquestion, $question->question_num);
+			$iscorrect = false;
 			if($subq->id == $subquestion->id) {
-				$choice->true = true;
-				$correct .= " " . $position;
+				$iscorrect = true;
 			}
-			$question->add_choice($choice);
-			$position += 1;
+			$question->create_choice($choicetext, $iscorrect);
 		}
-
-		$question->correct = trim($correct);
 
 	}
 }
@@ -416,27 +365,24 @@ class numerical_exporter extends qtype_exporter {
 
 		$question = new numeric_question();
 		$export_data->add_question($question);
-		
-		// Get the first answer.
+
+		// Set question data.
+		$this->set_common_question_data($question);
+
+		// Set question answer.
 		$answer = "";
 		foreach ($this->mquestion->options->answers as $manswer) {
 			$answer = $manswer->answer;
 			break;
 		}
-
-		// Set question data.
-		$this->set_common_question_data($question);
-		$question->correct = $answer;
-
-		$question->maximumvalue = $answer;
-		$question->minimumvalue = $answer;
-
+		$question->set_answer($answer);
+		
 	}
 
 }
 
 /**
- * Class for exporting a numerical-question.
+ * Class for exporting a shortanswer-question.
  */
 class shortanswer_exporter extends qtype_exporter {
 
@@ -449,26 +395,20 @@ class shortanswer_exporter extends qtype_exporter {
 		$question = new shortanswer_question();
 		$export_data->add_question($question);
 		
-		// Set answers (max 4).
-		$manswers = $this->mquestion->options->answers;
-		$correct = "";
-		$count = 0;
-		foreach($manswers as $manswer) {
-		    if($manswer->fraction > 0) {
-    			//$correct .= $manswer->answer . "\r\n";
-    			$correct .= $manswer->answer . "\n";
-    			if(++$count >= 4) {
-    				break;
-    			}
-		    }
-		}
-		$correct = trim($correct);
-		$question->correct = $correct;
-
 		// Set question data.
 		$this->set_common_question_data($question);
-		$question->exactmatches = $correct;
+
+		// Set question answers.
+		$manswers = $this->mquestion->options->answers;
+		$answers = array();
+		foreach($manswers as $manswer) {
+		    if($manswer->fraction > 0) {
+    			array_push($answers, $manswer->answer);
+		    }
+		}
+		$question->set_answers($answers);
 
 	}
 
 }
+

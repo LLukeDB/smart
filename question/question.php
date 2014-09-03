@@ -34,7 +34,7 @@ class question {
 	// Question infos.		
 	public $format;					// page: votemetadata -> format
 	public $labelstyle;				// page: votemetadata -> labelstyle
-	public $correct;				// page: votemetadata -> correct: labels of correct questionchoice blocks, e.g. "1 2"
+	public $correct = "";			// page: votemetadata -> correct: labels of correct questionchoice blocks, e.g. "1 2"
 	public $points = "";			// page: votemetadata -> points
 	public $explanation = "";		// page: votemetadata -> explanation
 	public $likert = "";            // page: votemetadata -> likert
@@ -66,6 +66,10 @@ class question {
 		array_push($this->choices, $choice);
 	}
 	
+	public function get_choicecount() {
+	    return count($this->choices);
+	}
+	
 	public function get_true_choice_values() {
 		$result = "";
 		foreach($this->choices as $choice) {
@@ -74,6 +78,18 @@ class question {
 			}
 		}
 		return trim($result);
+	}
+	
+	public function set_questiontext($questiontext) {
+	    $this->questiontext = $questiontext;
+	}
+	
+	public function set_points($points) {
+	    $this->points = $points;
+	}
+	
+	public function set_explanation($explanation) {
+	    $this->explanation = $explanation;
 	}
 }
 
@@ -109,6 +125,34 @@ class truefalse_question extends question {
     public $questionformat = "choice";
     public $choicelabelstyle = "true-false";
     
+    public function set_answer($answer) {
+        
+        $this->correct = $answer ? 1 : 2;
+        
+        // Get text parser.
+        $html_parser = new html_parser();
+        
+        // Set questionchoice 'true' data.
+        $choice_true = new choice();
+        $choice_true->choice_id = id_generator::get_instance()->generate_id();
+        $choice_true->label = "1";
+        $text = get_string('true', 'qtype_truefalse');
+        $choicelabel = $html_parser->parse_to_text($text);
+        $choice_true->choicelabel = $choicelabel;
+        $choice_true->true = $answer;
+        $this->add_choice($choice_true);
+        
+        // Set questionchoice 'false' data.
+        $choice_false = new choice();
+        $choice_false->choice_id = id_generator::get_instance()->generate_id();
+        $choice_false->label = "2";
+        $text = get_string('false', 'qtype_truefalse');
+        $choicelabel = $html_parser->parse_to_text($text);
+        $choice_false->choicelabel = $choicelabel;
+        $choice_false->true = !$answer;
+        $this->add_choice($choice_false);
+    }
+    
 }
 
 class selection_question extends question {
@@ -116,6 +160,23 @@ class selection_question extends question {
     public $labelstyle = "upper-alpha";
     public $questionformat = "selection";
     public $choicelabelstyle = "upper-alpha";
+    
+    public function create_choice($choicetext, $iscorrect) {
+        $choice = new choice();
+        $this->add_choice($choice);
+        $choice->choice_id = id_generator::get_instance()->generate_id();
+        $position = $this->get_choicecount();
+        $choice->label = $position;
+        $choice->format = "selection";
+        $choice->choicetext = $choicetext;
+        $parser = new html_parser();
+        $choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
+        if($iscorrect) {
+            $choice->true = true;
+            $this->correct = trim($this->correct . " " . $position);
+        }
+        return $choice;
+    }
     
 }
 
@@ -125,6 +186,23 @@ class choice_question extends question {
     public $questionformat = "choice";
     public $choicelabelstyle = "upper-alpha";
     public $likert = "false";
+    
+    public function create_choice($choicetext, $iscorrect) {
+        $choice = new choice();
+        $this->add_choice($choice);
+        $choice->choice_id = id_generator::get_instance()->generate_id();
+        $position = $this->get_choicecount();
+        $choice->label = $position;
+        $choice->format = "choice";
+        $choice->choicetext = $choicetext;
+        $parser = new html_parser();
+        $choice->choicelabel = $parser->parse_to_text(chr(ord('A') + ($position -1)));
+        if($iscorrect) {
+            $choice->true = true;
+            $this->correct = trim($this->correct . " " . $position);
+        }
+        return $choice;
+    }
     
 }
 
@@ -138,6 +216,12 @@ class numeric_question extends question {
     public $maximumvalue;
     public $minimumvalue;
     
+    public function set_answer($answer) {
+        $this->correct = $answer;
+        $this->maximumvalue = $answer;
+        $this->minimumvalue = $answer;
+    }
+    
 }
 
 class shortanswer_question extends question {
@@ -148,4 +232,20 @@ class shortanswer_question extends question {
      
      // Attribute specific for shortanswer questions.
      public $exactmatches;
+     
+     public function set_answers($answers) {
+         // Set answers (max 4).
+         $correct = "";
+         $count = 0;
+         foreach($answers as $answer) {
+                 //$correct .= $manswer->answer . "\r\n";
+                 $correct .= $answer . "\n";
+                 if(++$count >= 4) {
+                     break;
+                 }
+         }
+         $correct = trim($correct);
+         $this->correct = $correct;
+         $this->exactmatches = $correct;
+     }
 }

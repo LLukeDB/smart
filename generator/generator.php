@@ -30,9 +30,16 @@ require_once($CFG->dirroot . '/question/format/smart/helper/idgenerator.php');
  * Baseclass for all generators.
  */
 abstract class file_generator {
+    
+    protected $questions = array();
+    
 	protected abstract function generate_xml();
+	
 	public abstract function save($dir);
 	
+	public function add_question($question) {
+	    array_push($this->questions, $question);
+	}
 }
 
 class imsmanifest_generator extends file_generator {
@@ -76,15 +83,6 @@ class imsmanifest_generator extends file_generator {
 class metadatardf_generator extends file_generator {
 
 	private $xml;
-	private $questions;
-
-	public function __construct(){
-		$this->questions = array();
-	}
-
-	public function add_question($question) {
-		array_push($this->questions, $question);
-	}
 
 	protected function generate_xml() {
 		$this->init();
