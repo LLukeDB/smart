@@ -15,8 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for the SMART Notebook format.
- *
  * @package qformat_smart
  * @copyright 2014 Lukas Baumann
  * @author Lukas Baumann
@@ -490,23 +488,23 @@ class textfragment {
 		$draw = new ImagickDraw ();
 		$draw->setStrokeColor ("none");
 		//$font = str_replace(' ', '-', $this->formattings['font-family']);
-		$font = $this->get_imagick_fontname();
-		$draw->setFont($font);
-		//$draw->setfontfamily($this->formattings['font-family']);
+		//$draw->setFont($font);
+		$font = $this->get_available_font($im);
+		if($font != null) {
+		    $draw->setFont($font);
+		}
+		else {
+		    error_logger::get_instance()->log_error("Schriftart nicht gefunden - " . $this->formattings['font-family']);
+		}
 		$draw->setFontSize (intval($this->formattings['font-size']));
 		$draw->setTextAlignment (Imagick::ALIGN_LEFT);
 		$draw->settextencoding("UTF-8");
+		//$draw->setfontfamily($this->formattings['font-family']);
 // 		if(array_key_exists('font-style', $this->formattings)) {
 // 			$draw->setfontstyle(imagick::STYLE_ITALIC );
 // 		}
 // 		if(array_key_exists('font-weight', $this->formattings)) {
 // 			$draw->setfontweight(600);
-// 		}
-// 		if(array_key_exists('text-decoration', $this->formattings)) {
-// 			$draw->settextdecoration(imagick::DECORATION_UNDERLINE);
-// 		}
-// 		if(array_key_exists('text-strikeout', $this->formattings)) {
-// 			$draw->settextdecoration(imagick::DECORATION_LINETROUGH);
 // 		}
 		
 		// Query font metrics.
@@ -522,69 +520,104 @@ class textfragment {
 		$this->metrics = $metrics;
 	}
 	
-	private function get_imagick_fontname() {
-		$fontname = strtolower($this->formattings['font-family']);
-		$italic = array_key_exists('font-style', $this->formattings);
-		$bold = array_key_exists('font-weight', $this->formattings);
+	private function get_available_font($imagick) {
+	    $fonts = $this->get_possible_fonts();
+	    return $this->get_first_available_font($fonts, $imagick);
+	}
+	
+	private function get_possible_fonts() {
+	    // Capitalize first character of each word and conjoin words with '-'.
+		$fontname = str_replace(" ", "-", ucwords($this->formattings['font-family']));
 		
-		$imagick_fontname = "";
+		$fontnames = array();
 		
 		// Translate fontname.
-		if($fontname === "courier new") {
-			$imagick_fontname = "Courier-New";
+		if($fontname === "Courier-New") {
+			$fontnames = array("Courier-New", "Liberation-Mono", "FreeMono", "Nimbus-Mono");
 		}
-		else if($fontname === "trebuchet ms") {
-			$imagick_fontname = "Trebuchet-MS";
+		else if($fontname === "Trebuchet-MS") {
+			$fontnames = array("Trebuchet-MS");
 		}
 		else if($fontname === "Trebuchet") {
-			$imagick_fontname = "Trebuchet-MS";
+			$fontnames = array("Trebuchet-MS");
 		}
-		else if($fontname === "arial") {
-			$imagick_fontname = "Arial";
+		else if($fontname === "Arial") {
+		    $fontnames = array("Arial", "Liberation-Sans", "FreeSans", "Nimbus-Sans");
 		}
-		else if($fontname === "georgia") {
-			$imagick_fontname = "Georgia";
+		else if($fontname === "Georgia") {
+			$fontnames = array("Georgia");
 		}
-		else if($fontname === "tahoma") {
-			$imagick_fontname = "Tahoma";  // Not available in italic!
-			$italic = false;
+		else if($fontname === "Tahoma") {
+			$fontnames = array("Tahoma", "FreeSerif", "Nimbus-Roman-No9");
 		}
-		else if($fontname === "times new roman") {
-			$imagick_fontname = "Times-New-Roman";
+		else if($fontname === "Times-New-Roman") {
+			$fontnames = array("Times-New-Roman", "Liberation-Serif");
 		}
-		else if($fontname === "verdana") {
-			$imagick_fontname = "Verdana";
+		else if($fontname === "Verdana") {
+			$fontnames = array("Verdana", "DejaVuSans");
 		}
-		else if($fontname === "impact") {
-			$imagick_fontname = "Impact";  // Only regular!
-			$italic = false;
-			$bold = false;
+		else if($fontname === "Impact") {
+			$fontnames = array("Impact");
 		}
-		else if($fontname === "wingdings") {
-			$imagick_fontname = "Wingdings";  // Only regular!
-			$italic = false;
-			$bold = false;
+		else if($fontname === "Wingdings") {
+			$fontnames = array("Wingdings");
 		}
 		else {
-			$imagick_fontname = $fontname;
+			$fontnames = array($fontname);
 		}
 		
-		// Set font style.
-		if(!$italic && !$bold) {
-			$imagick_fontname .= "-Regular";
-		}
-		else if($italic && !$bold) {
-			$imagick_fontname .= "-Italic";
-		}
-		else if(!$italic && $bold) {
-			$imagick_fontname .= "-Bold";
-		}
-		else if($italic && $bold) {
-			$imagick_fontname .= "-Bold-Italic";
-		}
-		
-		return $imagick_fontname;
+		return $fontnames;
 	}
+	
+	private function addfontstyletofontname($fontname) {
+	    $italic = array_key_exists('font-style', $this->formattings);
+	    $bold = array_key_exists('font-weight', $this->formattings);
+	    
+	    $fontnamewithstyle = $fontname;
+	    
+	    // Set font style.
+	    if(!$italic && !$bold) {
+	        $fontnamewithstyle .= "-Regular";
+	    }
+	    else if($italic && !$bold) {
+	        $fontnamewithstyle .= "-Italic";
+	    }
+	    else if(!$italic && $bold) {
+	        $fontnamewithstyle .= "-Bold";
+	    }
+	    else if($italic && $bold) {
+	        $fontnamewithstyle .= "-Bold-Italic";
+	    }
+	    
+	    return $fontnamewithstyle;
+	}
+	
+	private function get_first_available_font($fontnames, $imagick) {
+	    $available_fontname = null;
+	    
+	    foreach ($fontnames as $fontname) {
+	        $fontname = $this->addfontstyletofontname($fontname);
+	        $query_res = $imagick->queryfonts($fontname);
+	        if(count($query_res) > 0) {
+	            $available_fontname = $fontname;
+	            break;
+	        }
+	    }
+	    
+	    return $available_fontname;
+	}
+	
+// 	private function get_font($fontname) {
+// 	    global $CFG;
+// 	    $fontsfolder = "text/fonts/";
+// 	    $filename = $CFG->dirroot . qformat_smart::get_plugin_dir() . $fontsfolder . "arial.ttf";
+// 	    return $filename;
+// 	}
+	
+// 	private function is_font_available($fontname) {
+// 	    $filename = this.get_fontfilename($fontname);
+// 	    return file_exists($filename);
+// 	}
 	
 }
 

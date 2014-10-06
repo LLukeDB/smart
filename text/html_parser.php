@@ -301,8 +301,10 @@ private function get_formattings() {
 }
 
 private function log_error($formatting) {
+    // Take only formatting name without value
+    $formatting = $splits = preg_split('/=/', $formatting)[0];
 	// Create log entry only if we know in which question the error is.
-	if($this->question != null) {
+	if($this->question != null && $formatting != null && strlen(trim($formatting)) > 0) {
 		// Create object for string params.
 		$a = new stdClass();
 		$a->formatting = get_string($formatting, 'qformat_smart');

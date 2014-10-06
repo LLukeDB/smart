@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-$string['unsupportedquestiontype'] = 'Die Auswahl enthält Fragetypen, die nicht unterstützt werden!<br />{$a}';
+$string['unsupportedquestiontype'] = 'Frage "{$a->questionname}" ({$a->questiontype})';
+$string['formatting_error'] = 'Formatierung <i>{$a->formatting}</i> in Frage {$a->questionnum} "{$a->questiontitle}": ';
 $string['missingextension'] = 'Folgende für die korrekte Funktion notwendige PHP-Erweiterung ist nicht installiert: {$a}';
 $string['filenotreadable'] = 'Die Datei konnte nicht gelesen werden!';
 $string['filenotvalid'] = 'Die Datei ist keine valide .notebook-Datei!';
 $string['shortanswer_input'] = 'Schüler geben hier ihre Antworten ein';
-$string['formatting_error'] = 'Frage {$a->questionnum} "{$a->questiontitle}": {$a->formatting}';
-$string['formatting_log_heading'] = '<p>Nachfolgende Formatierungen wurden bei der Konvertierung weggelassen:</p>';
+$string['formatting_log_heading'] = '<p>Folgende Fragen und Formatierungen wurden bei der Konvertierung weggelassen, da sie nicht unterstützt werden:</p>';
 $string['packingfailed'] = 'Dateiarchiv konnte nicht erstellt werden!';
 $string['savingfailed'] = 'Die Datei "{$a}" konnte nicht gespeichert werden!';
 $string['loadingfailed'] = 'Die Datei "{$a}" konnte nicht geladen werden!';
@@ -42,4 +42,5 @@ $string['h5'] = 'Überschrift';
 $string['h6'] = 'Überschrift';
 $string['sub'] = 'tiefgestellter Text';
 $string['sup'] = 'hochgestellter Text';
+$string['img'] = 'Bild';
 

@@ -128,35 +128,26 @@ class qformat_smart extends qformat_default {
 	
 	public function export_questions($questions) {
 	    
-	    $exporters = array();
-	    $unsupported_questions = array();
-	    
-	    foreach($questions as $question) {
-	        $exporter = qtype_exporter_factory::get_exporter($question);
-	    
-	        if(!$exporter) {
-	            array_push($unsupported_questions, $question);
-	        }
-	        else {
-	            array_push($exporters, $exporter);
-	        }
-	    }
-	    
-	    // Create error message if there are unsuported questions.
-	    if(count($unsupported_questions) > 0) {
-	        // Create string list with unsupported questions.
-	        $error_msg_params = "";
-	        foreach($unsupported_questions as $question) {
-	            $error_msg_params .= " - " . $question->name . " [" . get_string($question->qtype, 'quiz') . "]<br/>";
-	        }
-	        	
-	        print_error('unsupportedquestiontype', 'qformat_smart', $this->get_continue_path(), $error_msg_params);
-	    }
-	    
 	    // Export all questions.
 	    $export_data = new export_data();
-	    foreach ( $exporters as $exporter ) {
-	        $exporter->export($export_data);
+	    foreach($questions as $question) {
+	        // Do not export hidden (deleted) questions.
+	        if(!$question->hidden) {
+    	        $exporter = qtype_exporter_factory::get_exporter($question);
+    	    
+    	        if(!$exporter) {
+    	            $a = new stdClass();
+    	            $a->questionname = $question->name;
+    	            $a->questiontype = get_string($question->qtype, 'quiz');
+    	            
+    	            $error_msg = '<p><span font-size="small">- ' . get_string('unsupportedquestiontype', 'qformat_smart', $a) . '</span></p>';
+    	            
+    	            error_logger::get_instance()->log_error($error_msg);
+    	        }
+    	        else {
+    	            $exporter->export($export_data);
+    	        }
+	        }
 	    }
 	    
 	    // Export logged errors.

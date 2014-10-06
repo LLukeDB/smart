@@ -722,9 +722,9 @@ class qformat_smart_test extends question_testcase {
         $qdata->contextid = 0;
         $qdata->qtype = 'numerical';
         $qdata->name = 'Numerical question';
-        $qdata->questiontext = 'What is the answer?';
+        $qdata->questiontext = 'What is the answer to all questions?';
         $qdata->questiontextformat = FORMAT_HTML;
-        $qdata->generalfeedback = 'General feedback: Think Hitch-hikers guide to the Galaxy.';
+        $qdata->generalfeedback = 'General feedback';
         $qdata->generalfeedbackformat = FORMAT_HTML;
         $qdata->defaultmark = 1;
         $qdata->length = 1;
