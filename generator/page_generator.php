@@ -47,6 +47,10 @@ class page_generator extends file_generator {
 		// Write pageX.svg to directory.
 		$filename = $dir . $this->question->page_name;
 		$string = $this->xml->asXML();
+		// Replace id through xml:id in case of namespace problems.
+		$string = preg_replace('/\s+id="annotation/', ' xml:id="annotation', $string);
+		$string = preg_replace('/\s+id="page/', ' xml:id="page', $string);
+		
 		if($this->question->format == "short-answer") {
 			$string = str_replace('&#10;', "\r\n", $string);  // Replace escape sequence for linebreak with real linebreak. Needed for shortanswer questions.
 		}
@@ -129,7 +133,8 @@ class page_generator extends file_generator {
 		
 		$svg->addAttribute("width", "800");
 		$svg->addAttribute("height", $height);
-		$svg->addAttribute("xml:id", "page." . $this->question->page_id, "xml");
+		$svg->addAttribute("xml:id", "page." . $this->question->page_id, "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
+		
 	}
 	
 	private function generate_question() {
@@ -159,9 +164,9 @@ class page_generator extends file_generator {
 		// Set remaining attributes.
 		//$g->addAttribute("labelwidth", ceil($label_geometry['width']));
 		$g->addAttribute("language_direction", 1);
-		//$g->addAttribute("RotationPoint", "(350.000000,270.000000)"); // TODO Calculate coordiantes.
-		//$g->addAttribute("transform", "rotate(0.00,160.46,45.64)"); // TODO Calculate coordiantes.
-		$g->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		//$g->addAttribute("RotationPoint", "(350.000000,270.000000)");
+		//$g->addAttribute("transform", "rotate(0.00,160.46,45.64)");
+		$g->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$g->addAttribute("visible", 1);
 		
 		return true;
@@ -192,7 +197,7 @@ class page_generator extends file_generator {
 		// Write bullets.
 		switch ($this->question->format) {
 			case 'trueorfalse':
-				$this->generate_radiobutton($g, $ypos + 25);  // TODO calculate coordinates
+				$this->generate_radiobutton($g, $ypos + 25);
 				break;
 			case 'selection':
 				$this->generate_checkbox($g, $ypos + 25);	
@@ -204,12 +209,12 @@ class page_generator extends file_generator {
 		
 		
 		// Set remaining attributes.
-		//$g->addAttribute("xbk_transform", "rotate(0.00,113.57,128.92)"); // TODO Calculate coordinates.
+		//$g->addAttribute("xbk_transform", "rotate(0.00,113.57,128.92)");
 		//$g->addAttribute("labelwidth", ceil($label_geometry['width']));
 		$g->addAttribute("language_direction", 1);
-		//$g->addAttribute("RotationPoint", "(376.000000,353.281250)"); 	// TODO Calculate coordinates.
-		//$g->addAttribute("transform", "rotate(0.00,113.57,128.92)"); 	// TODO Calculate coordinates.
-		$g->addAttribute("xml:id", "annotation." . $choice->choice_id, "xml");
+		//$g->addAttribute("RotationPoint", "(376.000000,353.281250)"); 	
+		//$g->addAttribute("transform", "rotate(0.00,113.57,128.92)");
+		$g->addAttribute("xml:id", "annotation." . $choice->choice_id, "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$g->addAttribute("visible", 1);
 		
 		return true;
@@ -235,8 +240,8 @@ class page_generator extends file_generator {
 		// Set Attributes of text element.
 		//$text_elem->addAttribute("transform", "translate($xpos," . $this->ypos . ")");
 		$text_elem->addAttribute("transform", "translate($xpos," . $this->ypos . ") rotate(0.000," . ($width > 0 ? $width : $tmetrics->width) / 2.0 . "," . $tmetrics->height / 2.0 . ") scale(1.000,1.000)");
-		//$text_elem->addAttribute("RotationPoint", "(346.500000,240.000000)"); // TODO  Calculate coordinates.
-		$text_elem->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		//$text_elem->addAttribute("RotationPoint", "(346.500000,240.000000)");
+		$text_elem->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$text_elem->addAttribute("visible", 1);
 		$text_elem->addAttribute("smart-txt-ver", "2.10");
 		$text_elem->addAttribute("editwidth", $width > 0 ? $width : $tmetrics->width);
@@ -306,7 +311,7 @@ class page_generator extends file_generator {
 	private function generate_radiobutton($parent, $y) {
 		$g = $parent->addChild("g");
 		$g->addAttribute("class", "group");
-		$g->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		$g->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		//$g->addAttribute("xbk_transform", "rotate(0.00,66.75,189.31)");
 	
 		$e = $g->addChild("ellipse");
@@ -324,7 +329,7 @@ class page_generator extends file_generator {
 		$e->addAttribute("metadatatoken", "annotationmetadata/metadata.xml");
 		//$e->addAttribute("RotationPoint", "(194.000000,329.562500)");
 		//$e->addAttribute("transform", "rotate(0.00,68.01,190.57)");
-		$e->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		$e->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$e->addAttribute("visible", "1");
 	
 		$e = $g->addChild("ellipse");
@@ -342,14 +347,14 @@ class page_generator extends file_generator {
 		$e->addAttribute("metadatatoken", "annotationmetadata/metadata.xml");
 		//$e->addAttribute("RotationPoint", "(194.000000,329.562500)");
 		//$e->addAttribute("transform", "rotate(0.00,68.01,190.57)");
-		$e->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		$e->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$e->addAttribute("visible", "1");
 	}
 	
 	private function generate_checkbox($parent, $y) {
 		$g = $parent->addChild("g");
 		$g->addAttribute("class", "group");
-		$g->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		$g->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		//$g->addAttribute("xbk_transform", "rotate(0.00,66.75,189.31)");
 		
 		$path = $g->addChild("path");
@@ -365,7 +370,7 @@ class page_generator extends file_generator {
 		$path->addAttribute("fade-enable", "0");
 		//$path->addAttribute("RotationPoint", "(194.000000,329.562500)");
 		//$path->addAttribute("transform", "rotate(0.00,68.01,190.57)");
-		$path->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		$path->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$path->addAttribute("visible", "1");
 		
 		$path = $g->addChild("path");
@@ -381,7 +386,7 @@ class page_generator extends file_generator {
 		$path->addAttribute("fade-enable", "0");
 		//$path->addAttribute("RotationPoint", "(194.000000,329.562500)");
 		//$path->addAttribute("transform", "rotate(0.00,68.01,190.57)");
-		$path->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		$path->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$path->addAttribute("visible", "1");
 	}
 	
@@ -391,7 +396,7 @@ class page_generator extends file_generator {
 		
 		$g = $foreground->addChild("g");
 		$g->addAttribute("class", $class);
-		$g->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		$g->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$g->addAttribute("language_direction", "1");
 		
 		$g = $g->addChild("g");
@@ -415,13 +420,13 @@ class page_generator extends file_generator {
 		$path->addAttribute("stroke-dasharray", "3,1");
 		//$path->addAttribute("RotationPoint", "(293.314392,136.895065)");
 		//$path->addAttribute("transform", "rotate(0.00,239.19,114.86)");
-		$path->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		$path->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$path->addAttribute("visible", "1");
 		
 		$text = $g->addChild("text");
 		$text->addAttribute("transform", "translate(30,$ypos) rotate(0.000,209.190,18.500) scale(1.000,1.000)");
 		//$text->addAttribute("RotationPoint", "(320.000000,240.000000)");
-		$text->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "xml");
+		$text->addAttribute("xml:id", "annotation." . id_generator::get_instance()->generate_id(), "http://www.w3.org/TR/2009/REC-xml-names-20091208/");
 		$text->addAttribute("visible", "1");
 		$text->addAttribute("smart-txt-ver", "2.10");
 		$text->addAttribute("autokern", "0");

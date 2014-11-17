@@ -74,6 +74,7 @@ public function parse_to_text($text, $question=null, $questionnum=null) {
 	// Prepare text.
 	$text = str_replace("\n", "", $text);
 	$text = str_replace("\r", "", $text);
+	$text = preg_replace("/<\s*br\s*>/", "<br/>", $text);
 	
 	// Create surrounding text-elements to get valid xml.
 	$text = "<text>" . $text . "</text";
