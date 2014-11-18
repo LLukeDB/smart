@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for the SMART Notebook format.
  * 
  * @package qformat_smart
  * @copyright 2014 Lukas Baumann
@@ -74,6 +73,7 @@ public function parse_to_text($text, $question=null, $questionnum=null) {
 	// Prepare text.
 	$text = str_replace("\n", "", $text);
 	$text = str_replace("\r", "", $text);
+	$text = str_replace("&nbsp;", " ", $text);
 	$text = preg_replace("/<\s*br\s*>/", "<br/>", $text);
 	
 	// Create surrounding text-elements to get valid xml.
@@ -108,10 +108,26 @@ private function startElement($parser, $name, $attrs) {
 			$new_formattings = array("font-weight" => "bold");
 			array_push($this->formattings, $new_formattings);
 			break;
+		case "b" :
+		    $new_formattings = array("font-weight" => "bold");
+		    array_push($this->formattings, $new_formattings);
+		    break;
 		case "em" :
 			$new_formattings = array("font-style" => "italic");
 			array_push($this->formattings, $new_formattings);
 			break;
+		case "i" :
+		    $new_formattings = array("font-style" => "italic");
+		    array_push($this->formattings, $new_formattings);
+		    break;
+	    case "u" :
+	        $new_formattings = array("text-decoration" => "underline");
+	        array_push($this->formattings, $new_formattings);
+	        break;
+        case "strike" :
+            $new_formattings = array("text-strikeout" => "strikeout");
+            array_push($this->formattings, $new_formattings);
+            break;
 		case "span" :
 			$this->parse_attributes($attrs);
 			break;
@@ -163,6 +179,18 @@ private function endElement($parser, $name) {
 		case "span" :
 			array_pop($this->formattings);
 			break;
+		case "b" :
+		    array_pop($this->formattings);
+		    break;
+	    case "i" :
+	        array_pop($this->formattings);
+	        break;
+        case "u" :
+            array_pop($this->formattings);
+            break;
+        case "strike" :
+            array_pop($this->formattings);
+            break;
 		default :
 			// Do nothing.
 			break;
